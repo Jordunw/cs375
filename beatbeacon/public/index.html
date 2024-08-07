@@ -43,6 +43,10 @@
              // Creating a Layer object
              var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
              
+             // Ask for current location and navigate to that area
+            map.locate({setView: true, maxZoom: 16});
+
+
              // Adding layer to the map
              map.addLayer(layer);
           </script>
