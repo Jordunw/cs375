@@ -88,6 +88,22 @@
 
     // Adding layer to the map
     map.addLayer(layer);
+
+    //messing around with markers
+    var customIcon = L.icon({
+    iconUrl: 'icon.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+    });
+
+    var marker = L.marker([39.95659, -75.19548], {icon: customIcon}).addTo(map);
+    marker.bindPopup("CCI").openPopup();
+
+    map.on('locationfound', function(e) {
+      var currentloc = L.marker(e.latlng, {icon: customIcon}).addTo(map);
+      currentloc.bindPopup("current loc").openPopup();
+    });
   </script>
 </body>
 </html>
