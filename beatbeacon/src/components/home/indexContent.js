@@ -56,9 +56,9 @@ function MainPageContent() {
 
   return (
     <>
-      <div class="header">BeatBeacon</div>
-      <div class="sidebar">
-        <a class="login-button">Login with Spotify</a>
+      <div className="header">BeatBeacon</div>
+      <div className="sidebar">
+        <a className="login-button">Login with Spotify</a>
       </div>
       <div id="map"></div>
     </>
