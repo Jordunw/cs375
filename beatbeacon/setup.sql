@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS beatbeacon;
 CREATE DATABASE beatbeacon;
 \c beatbeacon
 CREATE TABLE posts (
