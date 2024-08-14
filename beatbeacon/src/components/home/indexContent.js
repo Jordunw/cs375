@@ -54,11 +54,26 @@ function MainPageContent() {
     }
   }, []);
 
+  const handleLoginClick = () => {
+    // Placeholder for Spotify login popup
+    const width = 500, height = 600;
+    const left = (window.innerWidth / 2) - (width / 2);
+    const top = (window.innerHeight / 2) - (height / 2);
+
+    window.open(
+      "https://accounts.spotify.com/authorize", 
+      "Spotify Login", 
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
+  };
+
   return (
     <>
       <div className="header">BeatBeacon</div>
       <div className="sidebar">
-        <a className="login-button">Login with Spotify</a>
+        <a className="login-button" onClick={handleLoginClick}>
+          Login with Spotify
+        </a>
       </div>
       <div id="map"></div>
     </>

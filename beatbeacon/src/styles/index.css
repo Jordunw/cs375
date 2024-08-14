@@ -41,14 +41,20 @@ body {
   display: block;
   margin: 20px 0;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #1ed760;
   color: white;
   text-align: center;
   text-decoration: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .login-button:hover {
-  background-color: #0056b3;
+  background-color: #088634;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.login-button:focus {
+  background-color: #075121;
 }
