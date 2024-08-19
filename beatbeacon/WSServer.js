@@ -1,32 +1,57 @@
 const express = require("express");
-const http = require("http");
 const WebSocket = require("ws");
+const path = require("path");
+const pg = require("pg");
 
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
-
-app.use(express.static("public"));
-
-wss.on("connection", (ws) => {
-    console.log("New client connected");
-
-    ws.on("message", (message) => {
-        console.log(`Received: ${message}`);
-        // Broadcast message to all clients
-        wss.clients.forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
-    });
-
-    ws.on("close", () => {
-        console.log("Client disconnected");
-    });
+// Set up the database connection
+const env = require("./env.json");
+const Pool = pg.Pool;
+const pool = new Pool(env);
+pool.connect().then(() => {
+  console.log(`Connected to database ${env.database}`);
+}).catch(err => {
+  console.error('Database connection error:', err);
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
+// Set up the server
+const host = "0.0.0.0";
+const port = process.env.PORT || 3000;
+
+const app = express();
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "build")));
+
+// Serve the React app for any non-API route
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
+// Start the HTTP server
+const httpServer = app.listen(port, host, () => {
+  console.log(`Server is listening at http://${host}:${port}`);
+});
+
+// Set up the WebSocket server
+const webSocketServer = new WebSocket.Server({ server: httpServer });
+
+webSocketServer.on("connection", (socket) => {
+  console.log("Socket connected");
+
+  socket.on("message", (data) => {
+    const message = data.toString();
+    console.log(`Received '${message}' from socket`);
+
+    // Broadcast the message to all connected clients except the sender
+    webSocketServer.clients.forEach((client) => {
+      if (client !== socket && client.readyState === WebSocket.OPEN) {
+        console.log(`Sending '${message}' to a client`);
+        client.send(message);
+      }
+    });
+  });
+
+  socket.on("close", () => {
+    console.log("Socket disconnected");
+  });
 });

@@ -6,7 +6,11 @@ const Feed = () => {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        const newSocket = new WebSocket('ws://localhost:3000');
+        // Determine WebSocket scheme based on the current protocol
+        const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const url = `${scheme}://${window.location.hostname}:${window.location.port}`;
+
+        const newSocket = new WebSocket(url);
         setSocket(newSocket);
 
         newSocket.onopen = () => {
@@ -15,12 +19,8 @@ const Feed = () => {
         };
 
         newSocket.onmessage = (event) => {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const message = reader.result;
-                setMessages((prevMessages) => [...prevMessages, `Got message: ${message}`]);
-            };
-            reader.readAsText(event.data); // Convert Blob to text
+            const message = event.data;
+            setMessages((prevMessages) => [...prevMessages, `Got message: ${message}`]);
         };
 
         newSocket.onclose = () => {
@@ -35,6 +35,7 @@ const Feed = () => {
 
     const sendMessage = () => {
         if (socket && socket.readyState === WebSocket.OPEN && inputMessage) {
+            console.log("Sending message to server:", inputMessage);
             socket.send(inputMessage);
             setMessages((prevMessages) => [...prevMessages, `You: ${inputMessage}`]);
             setInputMessage('');
