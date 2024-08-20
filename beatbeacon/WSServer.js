@@ -36,22 +36,21 @@ const httpServer = app.listen(port, host, () => {
 const webSocketServer = new WebSocket.Server({ server: httpServer });
 
 webSocketServer.on("connection", (socket) => {
-  console.log("Socket connected");
+    console.log("Socket connected");
 
-  socket.on("message", (data) => {
-    const message = data.toString();
-    console.log(`Received '${message}' from socket`);
+    socket.on("message", (data) => {
+        const post = JSON.parse(data);
+        console.log(`Received post from ${post.username}: ${post.song} - ${post.description}`);
 
-    // Broadcast the message to all connected clients except the sender
-    webSocketServer.clients.forEach((client) => {
-      if (client !== socket && client.readyState === WebSocket.OPEN) {
-        console.log(`Sending '${message}' to a client`);
-        client.send(message);
-      }
+        // Broadcast the post to all connected clients except the sender
+        webSocketServer.clients.forEach((client) => {
+            if (client !== socket && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify(post));
+            }
+        });
     });
-  });
 
-  socket.on("close", () => {
-    console.log("Socket disconnected");
-  });
+    socket.on("close", () => {
+        console.log("Socket disconnected");
+    });
 });
