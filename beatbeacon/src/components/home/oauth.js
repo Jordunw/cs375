@@ -8,7 +8,7 @@ const scope = 'user-read-private user-read-email';
 // This is just for testing
 const env = {
     client_id: '0f4344f0405a493e9060107a79b78903',
-    client_secret: 'client_secret'
+    client_secret: '51b1cc23de5847f78015cba7138c10bc'
 };
 
 const currentToken = {

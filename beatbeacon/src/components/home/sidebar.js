@@ -3,6 +3,7 @@ import "leaflet/dist/leaflet.css";
 import "../../styles/index.css";
 import OAuth from "./oauth";
 import * as Query from "../common/query";
+import { Link } from "react-router-dom";
 
 export default function Sidebar() {
   const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
@@ -53,6 +54,7 @@ export default function Sidebar() {
                 ))}
               </ul>
             )}
+            <Link className="login-button" to="/feed">Feed</Link>
           <a className="login-button" onClick={handleLogoutClick}>
             Log out
           </a>
