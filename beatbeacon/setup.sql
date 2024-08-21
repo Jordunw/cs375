@@ -13,19 +13,21 @@ CREATE TABLE users (
 CREATE TABLE songs (
     track_id VARCHAR(255) PRIMARY KEY, -- uuid for the song
     spotify_link VARCHAR(255) NOT NULL, -- link to the song on Spotify
-    beacon_played_at VARCHAR(255), -- time the song was last played at a beacon
+    beacon_played_at VARCHAR(255) -- time the song was last played at a beacon
+	song_added_at VARCHAR(255), -- time the song was added
 );
 
 CREATE TABLE playlists (
     playlist_id VARCHAR(255) PRIMARY KEY, -- uuid for the playlist
     spotify_playlist_link VARCHAR(255) NOT NULL, -- link to the playlist on Spotify
+	nominations TEXT[] DEFAULT '{}' -- Array of nominated song IDs for the beacon
 	songs TEXT[] DEFAULT '{}' -- Array of song IDs associated with playlist
 );
 
 CREATE TABLE beacons (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- uuid for the beacon
-    location POINT NOT NULL, -- location of the beacon
-    beacon_playlist VARCHAR(255), -- beacon with associated playlist "playlist id"
+    location POINT NOT NULL, -- location of the beacon (manual)
+    beacon_playlist VARCHAR(255) -- beacon with associated playlist "playlist id"
 );
 
 CREATE TABLE posts (
@@ -34,7 +36,7 @@ CREATE TABLE posts (
     body TEXT NOT NULL, -- post
     location POINT, -- location where the post was created
     created_at VARCHAR(255), -- time the post was created
-    likes_count INTEGER DEFAULT 0, --likes on the post
+    likes_count INTEGER DEFAULT 0 --likes on the post
 );
 
 -- Create indexes for frequent queries
