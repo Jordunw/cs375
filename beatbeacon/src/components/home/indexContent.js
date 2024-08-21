@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import '../../styles/index.css';
+import React, { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "../../styles/index.css";
+import Sidebar from "./sidebar";
 
 function MainPageContent() {
   // reference to map instance
@@ -9,19 +10,21 @@ function MainPageContent() {
 
   useEffect(() => {
     // check if map already exists
-    if(mapRef.current) return;
+    if (mapRef.current) return;
 
     // Creating map options
     var mapOptions = {
       center: [39.95659, -75.19548],
-      zoom: 19
-    }
+      zoom: 19,
+    };
 
     // Creating a map object
-    mapRef.current = L.map('map', mapOptions);
+    mapRef.current = L.map("map", mapOptions);
 
     // Creating a Layer object
-    var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+    var layer = new L.TileLayer(
+      "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    );
 
     // Ask for current location and navigate to that area
     mapRef.current.locate({ setView: true, maxZoom: 16 });
@@ -31,17 +34,21 @@ function MainPageContent() {
 
     //messing around with markers
     const customIcon = L.icon({
-      iconUrl: 'icon.png',
+      iconUrl: "icon.png",
       iconSize: [32, 32],
       iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
+      popupAnchor: [0, -32],
     });
 
-    const marker = L.marker([39.95659, -75.19548], { icon: customIcon }).addTo(mapRef.current);
+    const marker = L.marker([39.95659, -75.19548], { icon: customIcon }).addTo(
+      mapRef.current
+    );
     marker.bindPopup("CCI").openPopup();
 
-    mapRef.current.on('locationfound', function (e) {
-      var currentloc = L.marker(e.latlng, { icon: customIcon }).addTo(mapRef.current);
+    mapRef.current.on("locationfound", function (e) {
+      var currentloc = L.marker(e.latlng, { icon: customIcon }).addTo(
+        mapRef.current
+      );
       currentloc.bindPopup("current loc").openPopup();
     });
 
@@ -51,30 +58,13 @@ function MainPageContent() {
         mapRef.current.remove();
         mapRef.current = null;
       }
-    }
+    };
   }, []);
-
-  const handleLoginClick = () => {
-    // Placeholder for Spotify login popup
-    const width = 500, height = 600;
-    const left = (window.innerWidth / 2) - (width / 2);
-    const top = (window.innerHeight / 2) - (height / 2);
-
-    window.open(
-      "https://accounts.spotify.com/authorize", 
-      "Spotify Login", 
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
-  };
 
   return (
     <>
       <div className="header">BeatBeacon</div>
-      <div className="sidebar">
-        <a className="login-button" onClick={handleLoginClick}>
-          Login with Spotify
-        </a>
-      </div>
+      <Sidebar />
       <div id="map"></div>
     </>
   );

@@ -1,5 +1,5 @@
 // oauth.js
-const redirectUrl = 'http://localhost:3000';
+const redirectUrl = 'http://localhost:3000/login';
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
@@ -7,8 +7,8 @@ const scope = 'user-read-private user-read-email';
 
 // This is just for testing
 const env = {
-    client_id: 'YOUR_SPOTIFY_CLIENT_ID',
-    client_secret: 'YOUR_SPOTIFY_CLIENT_SECRET'
+    client_id: '0f4344f0405a493e9060107a79b78903',
+    client_secret: 'client_secret'
 };
 
 const currentToken = {
@@ -30,7 +30,7 @@ const currentToken = {
 };
 
 class OAuth {
-    async openPopupAndAuthenticate() {
+    static async openPopupAndAuthenticate() {
         const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const randomValues = crypto.getRandomValues(new Uint8Array(64));
         const randomString = randomValues.reduce((acc, x) => acc + possible[x % possible.length], "");
@@ -53,7 +53,8 @@ class OAuth {
             redirect_uri: redirectUrl
         };
 
-        authUrl.search = new URLSearchParams(params).toString();
+        const authUrlParams = new URLSearchParams(params);
+        authUrl.search = authUrlParams.toString();
 
         const width = 500, height = 600;
         const left = (window.innerWidth / 2) - (width / 2);
@@ -67,20 +68,20 @@ class OAuth {
                 this.handlePopupClose();
             }
         }, 1000);
+
+        currentToken.save(await this.getToken(authUrlParams.get('code')));
     }
 
-    async handlePopupClose() {
+    static async handlePopupClose() {
         const oauth_search_args = new URLSearchParams(window.location.search);
         const oauth_code = oauth_search_args.get('code');
 
         if (oauth_code) {
-            const token = await this.getToken(oauth_code);
-            currentToken.save(token);
             // TODO: Handle UI update after successful login
         }
     }
 
-    async getToken(code) {
+    static async getToken(code) {
         const code_verifier = localStorage.getItem('code_verifier');
 
         const response = await fetch(tokenEndpoint, {
@@ -98,6 +99,22 @@ class OAuth {
         });
 
         return await response.json();
+    }
+
+    static async updateAuthorization(code) {
+      currentToken.save(await this.getToken(code));
+    }
+
+    static getCurrentToken() {
+      return currentToken;
+    }
+
+    static loggedIn() {
+      return currentToken.access_token !== undefined;
+    }
+
+    static logout() {
+      localStorage.clear();
     }
 }
 
