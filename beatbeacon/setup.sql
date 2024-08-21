@@ -13,14 +13,14 @@ CREATE TABLE users (
 CREATE TABLE songs (
     track_id VARCHAR(255) PRIMARY KEY, -- uuid for the song
     spotify_link VARCHAR(255) NOT NULL, -- link to the song on Spotify
-    beacon_played_at VARCHAR(255) -- time the song was last played at a beacon
-	song_added_at VARCHAR(255), -- time the song was added
+    beacon_played_at VARCHAR(255), -- time the song was last played at a beacon
+	song_added_at VARCHAR(255) -- time the song was added
 );
 
 CREATE TABLE playlists (
     playlist_id VARCHAR(255) PRIMARY KEY, -- uuid for the playlist
     spotify_playlist_link VARCHAR(255) NOT NULL, -- link to the playlist on Spotify
-	nominations TEXT[] DEFAULT '{}' -- Array of nominated song IDs for the beacon
+	nominations TEXT[] DEFAULT '{}', -- Array of nominated song IDs for the beacon
 	songs TEXT[] DEFAULT '{}' -- Array of song IDs associated with playlist
 );
 
