@@ -1,21 +1,42 @@
+require('dotenv').config(); 
 const express = require("express");
 const WebSocket = require("ws");
 const path = require("path");
-const pg = require("pg");
+//const pg = require("pg");
+let { Pool } = require("pg");
+process.chdir(__dirname);
+//console.log(process.env);
+
 
 // Set up the database connection
-const env = require("./env.json");
-const Pool = pg.Pool;
-const pool = new Pool(env);
+//const env = require("./env.json");
+//const Pool = pg.Pool;
+//const pool = new Pool(env);
+
+let port = 3000;
+let host;
+let databaseConfig;
+// fly.io sets NODE_ENV to production automatically, otherwise it's unset when running locally
+if (process.env.NODE_ENV == "production") {
+    host = "0.0.0.0";
+    console.log(`Attempting to connect to ${beatbeacon-db}`);
+    databaseConfig = { connectionString: process.env.DATABASE_URL };
+} else {
+    host = "localhost";
+    let { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT } = process.env;
+    databaseConfig = { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT };
+}
+
+let pool = new Pool(databaseConfig);
 pool.connect().then(() => {
-  console.log(`Connected to database ${env.database}`);
+  console.log(`Connected to database`);
 }).catch(err => {
   console.error('Database connection error:', err);
 });
 
 // Set up the server
-const host = "0.0.0.0";
-const port = process.env.PORT || 3000;
+//const host = "0.0.0.0";
+//const port = process.env.PORT || 3000;
 
 const app = express();
 
