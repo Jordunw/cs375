@@ -19,7 +19,7 @@ let databaseConfig;
 // fly.io sets NODE_ENV to production automatically, otherwise it's unset when running locally
 if (process.env.NODE_ENV == "production") {
     host = "0.0.0.0";
-    console.log(`Attempting to connect to ${beatbeacon-db}`);
+    console.log(`Attempting to connect to ${process.env.DATABASE_URL}`);
     databaseConfig = { connectionString: process.env.DATABASE_URL };
 } else {
     host = "localhost";
