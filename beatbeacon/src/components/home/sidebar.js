@@ -10,6 +10,54 @@ export default function Sidebar({ onPost }) {
     const [username, setUsername] = useState('');
     const [song, setSong] = useState('');
     const [description, setDescription] = useState('');
+    const [location, setLocation] = useState(null);
+
+    useEffect(() => {
+        if (loggedIn) {
+            testAPIQuery();
+        }
+    }, [loggedIn]);
+
+    useEffect(() => {
+        getLocation();
+    }, []);
+
+    const getLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const loc = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    };
+                    setLocation(loc);
+                },
+                (error) => {
+                    console.error('Error getting location:', error.message);
+                    setLocation(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0,
+                }
+            );
+        } else {
+            console.error('Geolocation is not supported by this browser');
+            setLocation(null);
+        }
+    };
+
+    const handlePost = () => {
+        if (username && song && description && location) {
+            onPost({ username, song, description, location });
+            setUsername('');
+            setSong('');
+            setDescription('');
+        } else {
+            console.error('All fields must be filled');
+        }
+    };
 
     const handleLoginClick = () => {
         OAuth.openPopupAndAuthenticate();
@@ -26,23 +74,6 @@ export default function Sidebar({ onPost }) {
         const res = await Query.followedArtistsQuery(token);
         if (res) setFollowedArtists(res.artists.items);
         setLoading(false);
-    };
-
-    useEffect(() => {
-        if (loggedIn) {
-            testAPIQuery();
-        }
-    }, [loggedIn]);
-
-    const handlePost = () => {
-        if (username && song && description) {
-            onPost({ username, song, description });
-            setUsername('');
-            setSong('');
-            setDescription('');
-        } else {
-            console.error('All fields must be filled');
-        }
     };
 
     return (

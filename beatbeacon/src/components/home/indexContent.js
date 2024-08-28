@@ -123,10 +123,10 @@ function MainPageContent() {
   return (
     <>
       <div className="header">
-                <a className="nav-button" href="/">Map</a>
-                BeatBeacon
-                <a className="nav-button" href="/feed">Feed</a>
-            </div>
+        <a className="nav-button" href="/">Map</a>
+        BeatBeacon
+        <a className="nav-button" href="/feed">Feed</a>
+      </div>
       <Sidebar onPost={handlePost} /> {/* Pass handlePost to Sidebar */}
       <div id="map"></div>
     </>
