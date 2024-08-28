@@ -87,7 +87,40 @@ function MainPageContent() {
     ];
 
     const textMarker = L.marker(textCoordinates, { icon: textIcon }).addTo(mapRef.current);
+
   };
+
+  const addBeaconToMap = (title, songs, location) => {
+    let latitude = location[0];
+    let longitude = location[1];
+    const customIcon = L.icon({
+      iconUrl: "icon2.png",
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -64],
+    });
+
+    const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(mapRef.current);
+
+    
+    const textIcon = L.divIcon({
+      className: 'text-label',
+      //html: `<div class="text-background"><strong>${post.username}</strong><br>${post.song}<br>${post.description}</div>`,
+      iconSize: [150, 64],
+      iconAnchor: [0, 0],
+    });
+    
+
+    const textCoordinates = [
+      latitude,
+      longitude
+    ];
+
+    const textMarker = L.marker(textCoordinates, { icon: textIcon }).addTo(mapRef.current);
+    
+  };
+
+  
 
   const handlePost = (post) => {
     if (socket && socket.readyState === WebSocket.OPEN && location) {
@@ -97,6 +130,7 @@ function MainPageContent() {
       };
       socket.send(JSON.stringify(postData));
       addMarkerToMap(postData); // Immediately add marker for the user's post
+
     } else {
       console.error('WebSocket is not open or location is not available');
     }
@@ -131,6 +165,7 @@ function MainPageContent() {
   // Automatically get location when component mounts
   useEffect(() => {
     getLocation();
+    addBeaconToMap("CCI", ["party rockers", "another song idk"], [39.95674100167317, -75.19514687333297]);
   }, []);
 
   return (
