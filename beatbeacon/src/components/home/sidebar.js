@@ -1,65 +1,96 @@
 import React, { useEffect, useState } from "react";
-import "leaflet/dist/leaflet.css";
-import "../../styles/index.css";
 import OAuth from "./oauth";
 import * as Query from "../common/query";
-import { Link } from "react-router-dom";
 
-export default function Sidebar() {
-  const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
-  const [followedArtists, setFollowedArtists] = useState([]);
-  const [loading, setLoading] = useState(false);
+export default function Sidebar({ onPost }) {
+    const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
+    const [followedArtists, setFollowedArtists] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-  const handleLoginClick = () => {
-    OAuth.openPopupAndAuthenticate();
-  };
+    const [username, setUsername] = useState('');
+    const [song, setSong] = useState('');
+    const [description, setDescription] = useState('');
 
-  const handleLogoutClick = () => {
-    OAuth.logout();
-    setLoggedIn(false);
-  };
+    const handleLoginClick = () => {
+        OAuth.openPopupAndAuthenticate();
+    };
 
-  const testAPIQuery = async () => {
+    const handleLogoutClick = () => {
+        OAuth.logout();
+        setLoggedIn(false);
+    };
+
+    const testAPIQuery = async () => {
         setLoading(true);
         const token = OAuth.getCurrentToken().access_token;
         const res = await Query.followedArtistsQuery(token);
-        console.log(res);
-        if(res)
-            setFollowedArtists(res.artists.items); // Assuming res is an array of artists
+        if (res) setFollowedArtists(res.artists.items);
         setLoading(false);
     };
 
-  useEffect(() => {
-    if (loggedIn) {
-      testAPIQuery();
-    }
-  }, [loggedIn]);
+    useEffect(() => {
+        if (loggedIn) {
+            testAPIQuery();
+        }
+    }, [loggedIn]);
 
-  return (
-    <div className="sidebar">
-      {!loggedIn ? (
-        <a className="login-button" onClick={handleLoginClick}>
-          Login with Spotify
-        </a>
-      ) : (
-        <>
-          <p>User is logged in</p>
-          <p>Random user followed artist:</p>
-            {loading ? (
-              <span>Loading...</span>
+    const handlePost = () => {
+        if (username && song && description) {
+            onPost({ username, song, description });
+            setUsername('');
+            setSong('');
+            setDescription('');
+        } else {
+            console.error('All fields must be filled');
+        }
+    };
+
+    return (
+        <div className="sidebar" style={{ width: '300px', paddingBottom: '20px' }}>
+            {!loggedIn ? (
+                <a className="login-button" onClick={handleLoginClick}>
+                    Login with Spotify
+                </a>
             ) : (
-              <ul>
-                {followedArtists.map((artist, index) => (
-                  <li key={index}>{artist.name}</li>
-                ))}
-              </ul>
+                <>
+                    <p>User is logged in</p>
+                    <p>Random user followed artist:</p>
+                    {loading ? (
+                        <span>Loading...</span>
+                    ) : (
+                        <ul>
+                            {followedArtists.map((artist, index) => (
+                                <li key={index}>{artist.name}</li>
+                            ))}
+                        </ul>
+                    )}
+                    <a className="login-button" onClick={handleLogoutClick}>
+                        Log out
+                    </a>
+                </>
             )}
-            <Link className="login-button" to="/feed">Feed</Link>
-          <a className="login-button" onClick={handleLogoutClick}>
-            Log out
-          </a>
-        </>
-      )}
-    </div>
-  );
+
+            <div className="post-form" style={{ marginTop: 'auto' }}>
+                <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter username"
+                />
+                <input
+                    type="text"
+                    value={song}
+                    onChange={(e) => setSong(e.target.value)}
+                    placeholder="Enter song name"
+                />
+                <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter description (max 200 characters)"
+                    maxLength={200}
+                />
+                <button onClick={handlePost}>Post</button>
+            </div>
+        </div>
+    );
 }

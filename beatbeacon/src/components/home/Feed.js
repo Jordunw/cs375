@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import Sidebar from "./sidebar"; // Import the Sidebar component
 
 const Feed = () => {
     const [posts, setPosts] = useState([]);
-    const [username, setUsername] = useState('');
-    const [song, setSong] = useState('');
-    const [description, setDescription] = useState('');
-    const [location, setLocation] = useState(null);
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        // Determine WebSocket scheme based on the current protocol
         const scheme = window.location.protocol === "https:" ? "wss" : "ws";
         const url = `${scheme}://${window.location.hostname}:${window.location.port}`;
 
@@ -22,7 +18,7 @@ const Feed = () => {
 
         newSocket.onmessage = (event) => {
             const post = JSON.parse(event.data);
-            setPosts((prevPosts) => [...prevPosts, post]);
+            setPosts((prevPosts) => [post, ...prevPosts]); // Add the new post to the top
         };
 
         newSocket.onclose = () => {
@@ -34,84 +30,23 @@ const Feed = () => {
         };
     }, []);
 
-    const handlePost = () => {
-        if (socket && socket.readyState === WebSocket.OPEN && username && song && description) {
-            const post = {
-                username,
-                song,
-                description,
-                location, // Include the location directly obtained from the browser
-            };
-
-            console.log('Posting with data:', post); // Debugging output
-
+    const handlePost = (post) => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(post));
-            setPosts((prevPosts) => [...prevPosts, post]); // Add the post to the sender's feed
-            setUsername('');
-            setSong('');
-            setDescription('');
+            setPosts((prevPosts) => [post, ...prevPosts]); // Add the post to the sender's feed
         } else {
-            console.error('WebSocket is not open or fields are empty');
+            console.error('WebSocket is not open');
         }
     };
-
-    const getLocation = () => {
-        if (navigator.geolocation) {
-            console.log('Geolocation is supported. Requesting location...');
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const loc = {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    };
-                    console.log('Location obtained:', loc); // Debugging output
-                    setLocation(loc);
-                },
-                (error) => {
-                    console.error('Error getting location:', error.message);
-                    setLocation(null); // Fallback to null if location access is denied
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0,
-                }
-            );
-        } else {
-            console.error('Geolocation is not supported by this browser');
-            setLocation(null);
-        }
-    };
-
-    // Automatically get location when component mounts
-    useEffect(() => {
-        getLocation();
-    }, []);
 
     return (
-        <div className="feed-page">
-            <h2>Live Feed</h2>
-            <div className="post-form">
-                <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter username"
-                />
-                <input
-                    type="text"
-                    value={song}
-                    onChange={(e) => setSong(e.target.value)}
-                    placeholder="Enter song name"
-                />
-                <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Enter description (max 200 characters)"
-                    maxLength={200}
-                />
-                <button onClick={handlePost}>Post</button>
+        <>
+            <div className="header">
+                <a className="nav-button" href="/">Map</a>
+                BeatBeacon
+                <a className="nav-button" href="/feed">Feed</a>
             </div>
+            <Sidebar onPost={handlePost} /> {/* Sidebar for posting */}
             <div className="feed">
                 {posts.map((post, index) => (
                     <div key={index} className="post">
@@ -126,7 +61,7 @@ const Feed = () => {
                     </div>
                 ))}
             </div>
-        </div>
+        </>
     );
 };
 

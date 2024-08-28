@@ -6,7 +6,7 @@ body {
 #map {
   position: absolute;
   top: 60px;
-  left: 250px;
+  left: 300px; /* Adjusted to fit the wider sidebar */
   right: 0;
   bottom: 0;
 }
@@ -23,18 +23,54 @@ body {
   line-height: 60px;
   font-size: 24px;
   z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-button {
+  position: absolute;
+  top: 10px; /* 10px from the top to center vertically within the 60px header */
+  height: 40px; /* Adjust height to fit within 60px header */
+  color: white;
+  text-decoration: none;
+  padding: 0 15px; /* Adjusted padding to fit text without overflowing */
+  background-color: #1ed760;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  line-height: 40px; /* Vertically align text within the button */
+}
+
+.nav-button:hover {
+  background-color: #088634;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.nav-button:focus {
+  background-color: #075121;
+}
+
+.nav-button:first-child {
+  left: 20px; /* Aligns to the left of the header */
+}
+
+.nav-button:last-child {
+  right: 20px; /* Aligns to the right of the header */
 }
 
 .sidebar {
   position: fixed;
   top: 60px;
   left: 0;
-  width: 250px;
+  width: 300px; /* Increased sidebar width */
   bottom: 0;
   background-color: #f4f4f4;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
 }
 
 .login-button {
@@ -57,4 +93,37 @@ body {
 
 .login-button:focus {
   background-color: #075121;
+}
+
+.post-form {
+  margin-top: auto;
+}
+
+.post-form input, .post-form textarea {
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.post-form button {
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.feed {
+  margin-left: 150px; /* Align with the wider sidebar */
+  padding: 20px;
+  max-width: 800px;
+  margin-top: 80px; /* Add some spacing from the header */
+}
+
+.post {
+  background-color: #f4f4f4;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
