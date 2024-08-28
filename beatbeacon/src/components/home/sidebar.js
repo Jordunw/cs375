@@ -4,7 +4,7 @@ import * as Query from "../common/query";
 
 export default function Sidebar({ onPost }) {
     const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
-    const [followedArtists, setFollowedArtists] = useState([]);
+    const [followedArtists, setFollowedArtists] = useState('');
     const [loading, setLoading] = useState(false);
 
     const [username, setUsername] = useState('');
@@ -72,7 +72,7 @@ export default function Sidebar({ onPost }) {
         setLoading(true);
         const token = OAuth.getCurrentToken().access_token;
         const res = await Query.followedArtistsQuery(token);
-        if (res) setFollowedArtists(res.artists.items);
+        if (res) setFollowedArtists(res.artists.items[Math.floor(Math.random() * 10)].name);
         setLoading(false);
     };
 
@@ -89,11 +89,7 @@ export default function Sidebar({ onPost }) {
                     {loading ? (
                         <span>Loading...</span>
                     ) : (
-                        <ul>
-                            {followedArtists.map((artist, index) => (
-                                <li key={index}>{artist.name}</li>
-                            ))}
-                        </ul>
+                        followedArtists
                     )}
                     <a className="login-button" onClick={handleLogoutClick}>
                         Log out

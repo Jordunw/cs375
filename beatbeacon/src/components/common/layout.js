@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import React from "react";
+import Sidebar from "../home/sidebar";
 
 export default function Layout() {
   const handleLoginClick = () => {
@@ -16,12 +17,8 @@ export default function Layout() {
 
   return (
     <div className="layout-container">
-      <div className="sidebar">
-        <div className="header">BeatBeacon</div>
-        <a className="login-button" onClick={handleLoginClick}>
-          Login with Spotify
-        </a>
-      </div>
+      <div className="header">BeatBeacon</div>
+      <Sidebar />
       <div className="content">
         <Outlet />
       </div>
