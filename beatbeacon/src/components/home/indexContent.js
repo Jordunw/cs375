@@ -67,13 +67,26 @@ function MainPageContent() {
   const addMarkerToMap = (post) => {
     const customIcon = L.icon({
       iconUrl: "icon.png",
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
+      iconSize: [64, 64],
+      iconAnchor: [32, 64],
+      popupAnchor: [0, -64],
     });
 
     const marker = L.marker([post.location.latitude, post.location.longitude], { icon: customIcon }).addTo(mapRef.current);
-    marker.bindPopup(`<strong>${post.username}</strong><br>${post.song}<br>${post.description}`).openPopup();
+
+    const textIcon = L.divIcon({
+      className: 'text-label',
+      html: `<div class="text-background"><strong>${post.username}</strong><br>${post.song}<br>${post.description}</div>`,
+      iconSize: [150, 64],
+      iconAnchor: [0, 0],
+    });
+
+    const textCoordinates = [
+      post.location.latitude,
+      post.location.longitude
+    ];
+
+    const textMarker = L.marker(textCoordinates, { icon: textIcon }).addTo(mapRef.current);
   };
 
   const handlePost = (post) => {
@@ -100,7 +113,7 @@ function MainPageContent() {
           setLocation(loc);
         },
         (error) => {
-          console.error('Error getting location:', error.message);
+          console.error('Error getting   location:', error.message);
           setLocation(null);
         },
         {

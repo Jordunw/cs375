@@ -127,3 +127,26 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.text-label {
+  background: none;
+  padding: 0;
+  border: none;
+  white-space: nowrap;
+}
+
+.text-background {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  border-radius: 5px;
+  color: black;
+  font-size: 14px;
+  position: relative;
+  top: -64px;
+  left: 70px;
+  width: auto;
+  max-width: 200px;
+  overflow: hidden;
+  text-align: left;
+  z-index: -1;
+}
