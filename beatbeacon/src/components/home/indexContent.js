@@ -117,7 +117,58 @@ function MainPageContent() {
     ];
 
     const textMarker = L.marker(textCoordinates, { icon: textIcon }).addTo(mapRef.current);
-    
+
+    const createPopupContent = () => {
+      const container = document.createElement('div');
+      container.style.maxHeight = '200px';
+      container.style.overflowY = 'auto';
+      container.style.width = '150px';
+
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Add a song...';
+      input.style.width = '100%';
+      container.appendChild(input);
+
+      // Create a list element to display the songs
+      const list = document.createElement('ul');
+      list.style.padding = '0';
+      list.style.margin = '10px 0';
+      
+      // Function to update the list with current songs
+      const updateList = () => {
+        list.innerHTML = ''; // Clear current list
+        songs.forEach((song, index) => {
+          const listItem = document.createElement('li');
+          listItem.textContent = song;
+          listItem.style.listStyle = 'none'; // Remove bullet points
+          list.appendChild(listItem);
+        });
+      };
+
+      // Initial population of the list
+      updateList();
+      container.appendChild(list);
+
+      // Add event listener for input to add new songs
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && input.value.trim() !== '') {
+          songs.unshift(input.value.trim()); // Add new song to songs array
+          updateList(); // Update the list with the new song
+          input.value = ''; // Clear the input field
+        }
+      });
+
+      return container;
+    };
+
+    // Attach a click event to the marker to open the popup
+    marker.on('click', () => {
+      // Create popup content and bind it to the marker
+      const popupContent = createPopupContent();
+      marker.bindPopup(popupContent).openPopup();
+    });
   };
 
   
