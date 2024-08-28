@@ -36,7 +36,24 @@ export const lastListenedTo = async (accessToken) => {
 }
 
 // not finished, dont use yet
-export const createPlaylist = async (accessToken, userId, songs) => {
+export const createPlaylist = async (accessToken, userId, songIds) => {
     if(!accessToken) return undefined;
-    return await postAuth(`/users/${userId}/playlists`, accessToken, songs);
+    return await postAuth(`/users/${userId}/playlists`, accessToken, songIds);
+}
+
+export const getUserId = async (accessToken) => {
+    if(!accessToken) return undefined;
+    return await fetchAuth('/me', accessToken).id;
+}
+
+// defaults to limit of 1 - if you need to find more options, provide a limit value
+export const searchSongByTitle = async (accessToken, title, limit = 1) => {
+    if(!accessToken) return undefined;
+    return await fetchAuth('/search', + new URLSearchParams({q: `track:${title}`, limit: limit}), accessToken);
+}
+
+// defaults to limit of 1 - if you need to find more options, provide a limit value
+export const searchSongByTitleAndArtist = async (accessToken, title, artist, limit = 1) => {
+    if(!accessToken) return undefined;
+    return await fetchAuth('/search', + new URLSearchParams({q: `track:${title}%2520artist:${artist}`, limit: limit}), accessToken);
 }
