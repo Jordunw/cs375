@@ -9,11 +9,9 @@ const scope =
   playlist-modify-public \
   user-follow-read \
   user-read-playback-state \
-  user-read-currently-playing \
   user-modify-playback-state \
   user-read-recently-played \
-  user-read-playback-position \
-  streaming";
+  user-read-playback-position";
 
 // This is just for testing
 const env = {
@@ -142,7 +140,7 @@ class OAuth {
   }
 
   static loggedIn() {
-    return currentToken.access_token !== undefined;
+    return currentToken.access_token != null;
   }
 
   static logout() {
