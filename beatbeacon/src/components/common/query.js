@@ -41,6 +41,7 @@ export const createPlaylist = async (accessToken, userId, songIds) => {
     return await postAuth(`/users/${userId}/playlists`, accessToken, songIds);
 }
 
+// TODO: Error handling
 export const getUserId = async (accessToken) => {
     if(!accessToken) return undefined;
     return await fetchAuth('/me', accessToken).id;
