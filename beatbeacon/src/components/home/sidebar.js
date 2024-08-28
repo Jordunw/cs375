@@ -72,7 +72,7 @@ export default function Sidebar({ onPost }) {
     setLoading(true);
     const token = OAuth.getCurrentToken().access_token;
     if(!token) return;
-    const res = await Query.followedArtistsQuery(token);
+    const res = await Query.followedArtists(token);
     if (res && res.artists)
       setFollowedArtists(
         res.artists.items[Math.floor(Math.random() * 10)].name
