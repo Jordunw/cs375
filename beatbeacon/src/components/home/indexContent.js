@@ -123,43 +123,78 @@ function MainPageContent() {
       container.style.maxHeight = '200px';
       container.style.overflowY = 'auto';
       container.style.width = '150px';
-
-
+    
       const input = document.createElement('input');
       input.type = 'text';
       input.placeholder = 'Add a song...';
       input.style.width = '100%';
       container.appendChild(input);
-
+    
       // Create a list element to display the songs
       const list = document.createElement('ul');
       list.style.padding = '0';
       list.style.margin = '10px 0';
       
+      // Array to hold vote counts for each song
+      const votes = songs.map(() => 0);
+    
       // Function to update the list with current songs
       const updateList = () => {
         list.innerHTML = ''; // Clear current list
         songs.forEach((song, index) => {
           const listItem = document.createElement('li');
-          listItem.textContent = song;
           listItem.style.listStyle = 'none'; // Remove bullet points
+          listItem.style.display = 'flex'; // Use flexbox for alignment
+          listItem.style.alignItems = 'center';
+    
+          // Add song text
+          const songText = document.createElement('span');
+          songText.textContent = song;
+          listItem.appendChild(songText);
+    
+          // Add upvote button
+          const upvoteButton = document.createElement('button');
+          upvoteButton.textContent = '⬆️'; // Up arrow emoji
+          upvoteButton.style.marginLeft = '5px';
+          upvoteButton.addEventListener('click', () => {
+            votes[index]++; // Increment vote count
+            updateList(); // Refresh the list
+          });
+          listItem.appendChild(upvoteButton);
+    
+          // Add downvote button
+          const downvoteButton = document.createElement('button');
+          downvoteButton.textContent = '⬇️'; // Down arrow emoji
+          downvoteButton.style.marginLeft = '5px';
+          downvoteButton.addEventListener('click', () => {
+            votes[index]--; // Decrement vote count
+            updateList(); // Refresh the list
+          });
+          listItem.appendChild(downvoteButton);
+    
+          // Display current vote count
+          const voteCount = document.createElement('span');
+          voteCount.textContent = ` (${votes[index]})`;
+          voteCount.style.marginLeft = '5px';
+          listItem.appendChild(voteCount);
+    
           list.appendChild(listItem);
         });
       };
-
+    
       // Initial population of the list
       updateList();
       container.appendChild(list);
-
-      // Add event listener for input to add new songs
+    
       input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && input.value.trim() !== '') {
-          songs.unshift(input.value.trim()); // Add new song to songs array
+          songs.unshift(input.value.trim());
+          votes.unshift(0); // Initialize vote count for the new song
           updateList(); // Update the list with the new song
           input.value = ''; // Clear the input field
         }
       });
-
+    
       return container;
     };
 
