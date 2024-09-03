@@ -47,7 +47,7 @@ const Feed = () => {
         }
     };
 
-    return (
+   return (
         <>
             <div className="header">
                 <a className="nav-button" href="/">Map</a>
@@ -62,10 +62,14 @@ const Feed = () => {
                         <h4>{post.username}</h4>
                         <p><strong>Song:</strong> {post.song}</p>
                         <p>{post.description}</p>
-                        {post.location ? (
-                            <>
-                                <p><strong>Location:</strong> {post.city || 'City not available'}, {post.state || 'State not available'}, {post.country || 'Country not available'}</p>
-                            </>
+                        {(post.city && post.city !== "Unknown City") || (post.state && post.state !== "Unknown State") || (post.country && post.country !== "Unknown Country") ? (
+                            <p><strong>Location:</strong> 
+                                {[
+                                    post.city !== "Unknown City" ? post.city : null,
+                                    post.state && post.state !== "Unknown State" ? post.state : null,
+                                    post.country !== "Unknown Country" ? post.country : null
+                                ].filter(Boolean).join(', ')}
+                            </p>
                         ) : (
                             <p>No location available</p>
                         )}
