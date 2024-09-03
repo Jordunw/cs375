@@ -61,7 +61,7 @@ webSocketServer.on("connection", (socket) => {
 
     socket.on("message", (data) => {
         const post = JSON.parse(data);
-        console.log(`Received post from ${post.username}: ${post.song} - ${post.description}`);
+        console.log(`Received post from ${post.username}: ${post.song} - ${post.description} located at: ${post.location.latitude}, ${post.location.longitude} / ${post.city}, ${post.state}, ${post.country}`);
 
         // Broadcast the post to all connected clients except the sender
         webSocketServer.clients.forEach((client) => {

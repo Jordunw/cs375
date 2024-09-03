@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./sidebar"; // Import the Sidebar component
+import { fetchLocationDetails } from './geocodingUtils'; // Import the utility
 
 const Feed = () => {
     const [posts, setPosts] = useState([]);
@@ -30,7 +31,14 @@ const Feed = () => {
         };
     }, []);
 
-    const handlePost = (post) => {
+    const handlePost = async (post) => {
+        if (post.location) {
+            const locationDetails = await fetchLocationDetails(post.location.latitude, post.location.longitude);
+            post.city = locationDetails.city;
+            post.state = locationDetails.state;
+            post.country = locationDetails.country;
+        }
+
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(post));
             setPosts((prevPosts) => [post, ...prevPosts]); // Add the post to the sender's feed
@@ -48,13 +56,16 @@ const Feed = () => {
             </div>
             <Sidebar onPost={handlePost} /> {/* Sidebar for posting */}
             <div className="feed">
+                <h2>Live Feed:</h2>
                 {posts.map((post, index) => (
                     <div key={index} className="post">
                         <h4>{post.username}</h4>
                         <p><strong>Song:</strong> {post.song}</p>
                         <p>{post.description}</p>
                         {post.location ? (
-                            <p><strong>Location:</strong> {post.location.latitude}, {post.location.longitude}</p>
+                            <>
+                                <p><strong>Location:</strong> {post.city || 'City not available'}, {post.state || 'State not available'}, {post.country || 'Country not available'}</p>
+                            </>
                         ) : (
                             <p>No location available</p>
                         )}
