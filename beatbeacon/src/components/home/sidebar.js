@@ -89,8 +89,6 @@ export default function Sidebar({ onPost }) {
       ) : (
         <>
           <p>User is logged in</p>
-          <p>Random user followed artist:</p>
-          {loading ? <span>Loading...</span> : followedArtists}
           <a className="login-button" onClick={handleLogoutClick}>
             Log out
           </a>

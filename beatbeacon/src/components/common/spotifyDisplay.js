@@ -28,7 +28,8 @@ export function SearchResults({ song, artist = null, width, height }) {
             id: item.id,
             img: item.album.images[0].url,
             song: item.name,
-            artist: item.artists[0].name // just pulling the first artist name for simplicity
+            artist: item.artists[0].name, // just pulling the first artist name for simplicity
+            duration: item.duration_ms
         });
     });
 
