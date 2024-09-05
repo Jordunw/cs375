@@ -1,12 +1,13 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./components/common/layout";
-import IndexContent from "./components/home/indexContent";
 import Feed from "./components/home/Feed"; // Import the Feed component
 import Page404 from "./components/common/page404";
-import "./App.css";
-import LoginPage from "./components/home/login";
 import { SearchResults } from "./components/common/spotifyDisplay";
+
+import Map from "./pages/map";
+import Login from "./pages/login";
+import Landing from "./pages/landing";
 
 class App extends React.Component {
   render() {
@@ -17,7 +18,11 @@ class App extends React.Component {
         children: [
           {
             path: "/",
-            element: <IndexContent />,
+            element: <Landing />,
+          },
+          {
+            path: "/map", // Define the route for the Feed page
+            element: <Map />,
           },
           {
             path: "/feed", // Define the route for the Feed page
@@ -25,7 +30,7 @@ class App extends React.Component {
           },
           {
             path: '/login',
-            element: <LoginPage />
+            element: <Login />
           },
           {
             path: "/logout",

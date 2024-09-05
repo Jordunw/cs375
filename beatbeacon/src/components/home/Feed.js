@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "./sidebar"; // Import the Sidebar component
-import { fetchLocationDetails } from './geocodingUtils'; // Import the utility
+import Sidebar from "../Sidebar"; // Import the Sidebar component
+import { fetchLocationDetails } from '../map/geocodingUtils'; // Import the utility
 
 const Feed = () => {
     const [posts, setPosts] = useState([]);
