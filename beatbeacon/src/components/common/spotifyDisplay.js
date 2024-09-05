@@ -1,6 +1,7 @@
 import * as Query from "./query";
 import React, { useState } from "react";
-import OAuth from "../../services/OAuth";
+import OAuth from "../home/oauth";
+import "../../styles/spotifyDisplay.css";
 
 export function SearchResults({ song, artist = null, width, height }) {
   const [status, setStatus] = useState("searching");
