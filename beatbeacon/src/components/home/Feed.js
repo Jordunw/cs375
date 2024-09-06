@@ -5,8 +5,12 @@ import { fetchLocationDetails } from './geocodingUtils'; // Import the utility
 const Feed = () => {
     const [posts, setPosts] = useState([]);
     const [socket, setSocket] = useState(null);
+    const [displayName, setDisplayName] = useState("");
 
     useEffect(() => {
+        // Fetch existing posts when component mounts
+        fetchPosts();
+
         const scheme = window.location.protocol === "https:" ? "wss" : "ws";
         const url = `${scheme}://${window.location.hostname}:${window.location.port}`;
 
@@ -19,7 +23,7 @@ const Feed = () => {
 
         newSocket.onmessage = (event) => {
             const post = JSON.parse(event.data);
-            setPosts((prevPosts) => [post, ...prevPosts]); // Add the new post to the top
+            setPosts((prevPosts) => [post, ...prevPosts]);
         };
 
         newSocket.onclose = () => {
@@ -31,6 +35,19 @@ const Feed = () => {
         };
     }, []);
 
+    const fetchPosts = async () => {
+        try {
+            const response = await fetch('/api/posts');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setPosts(data);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        }
+    };
+
     const handlePost = async (post) => {
         if (post.location) {
             const locationDetails = await fetchLocationDetails(post.location.latitude, post.location.longitude);
@@ -40,39 +57,41 @@ const Feed = () => {
         }
 
         if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify(post));
-            setPosts((prevPosts) => [post, ...prevPosts]); // Add the post to the sender's feed
+            socket.send(JSON.stringify({
+                ...post,
+                displayName: displayName || "Anonymous User" // Use input display name or default to "Anonymous User"
+            }));
         } else {
             console.error('WebSocket is not open');
         }
     };
 
-   return (
+    const handleUsernameChange = (username) => {
+        setDisplayName(username);
+    };
+
+    return (
         <>
             <div className="header">
                 <a className="nav-button" href="/">Map</a>
                 BeatBeacon
                 <a className="nav-button" href="/feed">Feed</a>
             </div>
-            <Sidebar onPost={handlePost} /> {/* Sidebar for posting */}
+            <Sidebar onPost={handlePost} onUsernameChange={handleUsernameChange} /> {/* Sidebar for posting */}
             <div className="feed">
                 <h2>Live Feed:</h2>
                 {posts.map((post, index) => (
                     <div key={index} className="post">
-                        <h4>{post.username}</h4>
-                        <p><strong>Song:</strong> {post.song}</p>
-                        <p>{post.description}</p>
-                        {(post.city && post.city !== "Unknown City") || (post.state && post.state !== "Unknown State") || (post.country && post.country !== "Unknown Country") ? (
-                            <p><strong>Location:</strong> 
-                                {[
-                                    post.city !== "Unknown City" ? post.city : null,
-                                    post.state && post.state !== "Unknown State" ? post.state : null,
-                                    post.country !== "Unknown Country" ? post.country : null
-                                ].filter(Boolean).join(', ')}
+                        <h4>{post.display_name}</h4>
+                        <p><strong>Song:</strong> {post.body.song}</p>
+                        <p><strong>Description:</strong> {post.body.description}</p>
+                        <p><strong>Location:</strong> {post.location ? `(${post.location.x}, ${post.location.y})` : 'No location available'}</p>
+                        <p><strong>Created at:</strong> {new Date(post.created_at).toLocaleString()}</p>
+                        {post.city || post.state || post.country ? (
+                            <p><strong>Address:</strong> 
+                                {[post.city, post.state, post.country].filter(Boolean).join(', ')}
                             </p>
-                        ) : (
-                            <p>No location available</p>
-                        )}
+                        ) : null}
                     </div>
                 ))}
             </div>

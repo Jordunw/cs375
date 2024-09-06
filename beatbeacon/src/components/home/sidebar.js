@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import OAuth from "./oauth";
 import * as Query from "../common/query";
 
-export default function Sidebar({ onPost }) {
+export default function Sidebar({ onPost, onUsernameChange }) {  // Add onUsernameChange prop
   const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
   const [followedArtists, setFollowedArtists] = useState("");
   const [loading, setLoading] = useState(false);
@@ -101,6 +101,12 @@ export default function Sidebar({ onPost }) {
     setLoading(false);
   };
 
+  const handleUsernameChange = (e) => {
+    const newUsername = e.target.value;
+    setUsername(newUsername);
+    onUsernameChange(newUsername);  // Pass the username to the parent component
+  };
+
   return (
     <div className="sidebar" style={{ width: "300px", paddingBottom: "20px" }}>
       {!loggedIn ? (
@@ -117,7 +123,7 @@ export default function Sidebar({ onPost }) {
             <input
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={handleUsernameChange}  // Use the new handler
               placeholder="Enter username"
             />
             <p>Currently listening to: </p>

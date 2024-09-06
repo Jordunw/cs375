@@ -40,6 +40,30 @@ pool.connect().then(() => {
 
 const app = express();
 
+// Parse JSON bodies
+app.use(express.json());
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+// API routes
+app.get('/api/posts', async (req, res, next) => {
+    try {
+        const query = `
+            SELECT p.*
+            FROM posts p
+            ORDER BY p.created_at DESC;
+        `;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (error) {
+        next(error); // Pass errors to the error handling middleware
+    }
+});
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "build")));
 
@@ -56,19 +80,44 @@ const httpServer = app.listen(port, host, () => {
 // Set up the WebSocket server
 const webSocketServer = new WebSocket.Server({ server: httpServer });
 
+const { v4: uuidv4 } = require('uuid');
+
 webSocketServer.on("connection", (socket) => {
     console.log("Socket connected");
 
-    socket.on("message", (data) => {
+    socket.on("message", async (data) => {
         const post = JSON.parse(data);
-        console.log(`Received post from ${post.username}: ${post.song} - ${post.description} located at: ${post.location.latitude}, ${post.location.longitude} / ${post.city}, ${post.state}, ${post.country}`);
+        console.log(`Received post from ${post.displayName}: ${post.song} - ${post.description}`);
 
-        // Broadcast the post to all connected clients except the sender
-        webSocketServer.clients.forEach((client) => {
-            if (client !== socket && client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(post));
-            }
-        });
+        try {
+            // Insert the post into the database
+            const query = `
+                INSERT INTO posts (id, display_name, body, location, created_at)
+                VALUES ($1, $2, $3, point($4, $5), $6)
+                RETURNING *;
+            `;
+            const values = [
+                uuidv4(),
+                post.displayName,
+                JSON.stringify({ song: post.song, description: post.description }),
+                post.location.longitude,
+                post.location.latitude,
+                new Date().toISOString()
+            ];
+            const result = await pool.query(query, values);
+            const savedPost = result.rows[0];
+
+            // Broadcast the saved post to all connected clients
+            webSocketServer.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(savedPost));
+                }
+            });
+        } catch (error) {
+            console.error('Error saving post to database:', error);
+            // Send error message back to the client
+            socket.send(JSON.stringify({ error: error.message }));
+        }
     });
 
     socket.on("close", () => {

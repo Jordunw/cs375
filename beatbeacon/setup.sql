@@ -31,12 +31,12 @@ CREATE TABLE beacons (
 );
 
 CREATE TABLE posts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(), --uuid for the post
-    user_id UUID NOT NULL, -- user who created the post
-    body TEXT NOT NULL, -- post
-    location POINT, -- location where the post was created
-    created_at VARCHAR(255), -- time the post was created
-    likes_count INTEGER DEFAULT 0 --likes on the post
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    display_name VARCHAR(255) NOT NULL,
+    body JSONB NOT NULL, -- Store song and description as JSON
+    location POINT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    likes_count INTEGER DEFAULT 0
 );
 
 -- Create indexes for frequent queries
