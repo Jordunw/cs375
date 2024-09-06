@@ -14,7 +14,6 @@ export default function Sidebar({ onPost }) {
 
   const updateCurrentlyListeningTrack = async () => {
     let currentSong = await Query.currentListening(OAuth.getCurrentToken());
-    console.log(currentSong);
     if (!currentSong || !currentSong.item || currentSong.item.type != "track")
       return;
     setSong({
@@ -28,14 +27,11 @@ export default function Sidebar({ onPost }) {
   };
 
   useEffect(() => {
+    getLocation();
     if (loggedIn) {
       updateCurrentlyListeningTrack();
     }
-  }, [loggedIn]);
-
-  useEffect(() => {
-    getLocation();
-  }, []);
+  }, [OAuth.loggedIn()]);
 
   const getLocation = () => {
     if (navigator.geolocation) {
@@ -65,7 +61,8 @@ export default function Sidebar({ onPost }) {
 
   const handlePost = () => {
     if (username && song && description && location) {
-      onPost({ username, song, description, location });
+      const songInfo = String(song.song) + " by " + String(song.artist);
+      onPost({ username, song: songInfo, description, location });
       setUsername("");
       setDescription("");
       const update = async () => await updateCurrentlyListeningTrack();
