@@ -87,18 +87,6 @@ export default function Sidebar({ onPost, onUsernameChange }) {  // Add onUserna
     setLoggedIn(false);
   };
 
-  const testAPIQuery = async () => {
-    setLoading(true);
-    const token = OAuth.getCurrentToken().access_token;
-    if (!token) return;
-    const res = await Query.followedArtists(token);
-    if (res && res.artists)
-      setFollowedArtists(
-        res.artists.items[Math.floor(Math.random() * 10)].name
-      );
-    setLoading(false);
-  };
-
   const handleUsernameChange = (e) => {
     const newUsername = e.target.value;
     setUsername(newUsername);
