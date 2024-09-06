@@ -8,13 +8,28 @@ export default function Sidebar({ onPost }) {
   const [loading, setLoading] = useState(false);
 
   const [username, setUsername] = useState("");
-  const [song, setSong] = useState("");
+  const [song, setSong] = useState(null);
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState(null);
 
+  const updateCurrentlyListeningTrack = async () => {
+    let currentSong = await Query.currentListening(OAuth.getCurrentToken());
+    console.log(currentSong);
+    if (!currentSong || !currentSong.item || currentSong.item.type != "track")
+      return;
+    setSong({
+      id: currentSong.item.id,
+      img: currentSong.item.album.images[0].url,
+      song: currentSong.item.name,
+      artist: currentSong.item.artists[0].name, // just pulling the first artist name for simplicity
+      duration: currentSong.item.duration_ms,
+      progress: currentSong.progress_ms,
+    });
+  };
+
   useEffect(() => {
     if (loggedIn) {
-      testAPIQuery();
+      updateCurrentlyListeningTrack();
     }
   }, [loggedIn]);
 
@@ -52,12 +67,20 @@ export default function Sidebar({ onPost }) {
     if (username && song && description && location) {
       onPost({ username, song, description, location });
       setUsername("");
-      setSong("");
       setDescription("");
+      const update = async () => await updateCurrentlyListeningTrack();
+      update();
     } else {
-      console.error("All fields must be filled");
+      if (!song) console.error("You need to be listening to a song!");
+      else console.error("All fields must be filled");
+      return;
     }
   };
+
+  const handleRefreshSong = () => {
+    const update = async () => await updateCurrentlyListeningTrack();
+    update();
+  }
 
   const handleLoginClick = () => {
     OAuth.openPopupAndAuthenticate();
@@ -71,7 +94,7 @@ export default function Sidebar({ onPost }) {
   const testAPIQuery = async () => {
     setLoading(true);
     const token = OAuth.getCurrentToken().access_token;
-    if(!token) return;
+    if (!token) return;
     const res = await Query.followedArtists(token);
     if (res && res.artists)
       setFollowedArtists(
@@ -99,12 +122,16 @@ export default function Sidebar({ onPost }) {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
             />
-            <input
-              type="text"
-              value={song}
-              onChange={(e) => setSong(e.target.value)}
-              placeholder="Enter song name"
-            />
+            <p>Currently listening to: </p>
+            {song ? (
+              <span>
+                <p>
+                  <i>{song.song}</i>  by  <b>{song.artist}</b>
+                </p>
+              </span>
+            ) : (
+              <p>Nothing :/</p>
+            )}
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -112,6 +139,8 @@ export default function Sidebar({ onPost }) {
               maxLength={200}
             />
             <button onClick={handlePost}>Post</button>
+            <br></br>
+            <button onClick={handleRefreshSong}>Refresh song</button>
           </div>
         </>
       )}

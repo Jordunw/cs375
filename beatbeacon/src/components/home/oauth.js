@@ -1,6 +1,6 @@
 // oauth.js
-const redirectUrl = "https://beatbeacon.fly.dev/login";
-//const redirectURL = "http://localhost:3000/login"; // replace above with this for local testing
+//const redirectUrl = "https://beatbeacon.fly.dev/login";
+const redirectUrl = "http://localhost:3000/login"; // replace above with this for local testing
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
 const scope =
@@ -137,7 +137,7 @@ class OAuth {
   }
 
   static getCurrentToken() {
-    return currentToken;
+    return currentToken.access_token;
   }
 
   static loggedIn() {
