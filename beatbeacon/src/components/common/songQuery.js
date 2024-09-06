@@ -11,10 +11,9 @@ import OAuth from "../home/oauth";
   img: "song_img_link",
 }
  */
-export async function searchSpotifySong(song) {
-    let results = undefined;
+export async function searchSpotifySong(token, song) {
     let songArr = [];
-    results = await Query.searchSongByTitle(OAuth.getCurrentToken(), song, 3);
+    let results = await Query.searchSongByTitle(token, song, 3);
 
     if(!results || !results.items)
         return undefined;

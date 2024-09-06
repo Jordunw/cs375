@@ -50,7 +50,13 @@ export const getUserId = async (accessToken) => {
 // defaults to limit of 1 - if you need to find more options, provide a limit value
 export const searchSongByTitle = async (accessToken, title, limit = 1) => {
     if(!accessToken) return undefined;
-    return await fetchAuth('/search', + new URLSearchParams({q: `track:${title}`, limit: limit}), accessToken);
+    const queryParams = new URLSearchParams({
+        q: `track:${title}`,
+        type: 'track',
+        limit: limit
+    });
+
+    return await fetchAuth(`/search?${queryParams.toString()}`, accessToken);
 }
 
 // defaults to limit of 1 - if you need to find more options, provide a limit value

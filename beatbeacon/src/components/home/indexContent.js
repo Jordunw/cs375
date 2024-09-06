@@ -15,6 +15,8 @@ function MainPageContent() {
   const [location, setLocation] = useState(null);
   const [socket, setSocket] = useState(null);
   const [username, setUsername] = useState("");
+  const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
+  const [token, setToken] = useState(OAuth.getCurrentToken());
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -52,6 +54,9 @@ function MainPageContent() {
       console.log("Disconnected from WebSocket server");
     };
 
+    setLoggedIn(OAuth.loggedIn());
+    setToken(OAuth.getCurrentToken());
+
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -59,7 +64,7 @@ function MainPageContent() {
       }
       newSocket.close();
     };
-  }, []);
+  }, [OAuth.loggedIn()]);
 
   const addMarkerToMap = (post) => {
     const customIcon = L.icon({
@@ -141,6 +146,8 @@ function MainPageContent() {
       }))
     );
     const [inputValues, setInputValues] = useState(Array(songs.length).fill(""));
+    const [foundSongs, setFoundSongs] = useState(null);
+    const [battlingSong, setBattling] = useState(null);
   
     const handleInputChange = (value, index) => {
       const newInputValues = [...inputValues];
@@ -149,11 +156,13 @@ function MainPageContent() {
     };
   
     const handleSearch = async (index) => {
-      const results = await searchSpotifySong(inputValues[index]);
-      setVotes((votes) => votes.map((vote, i) => {
-        if (i === index) vote.battleSongs = results;
-        return vote;
-      }));
+      if(!token || !loggedIn) return null;
+      const results = await searchSpotifySong(token, inputValues[index]);
+      setFoundSongs(results);
+      //setVotes((votes) => votes.map((vote, i) => {
+      //  if (i === index) vote.battleSongs = results;
+      //  return vote;
+      //}));
     };
   
     const handleSelectSong = (index, song) => {
@@ -222,6 +231,11 @@ function MainPageContent() {
                       onChange={(e) => handleInputChange(e.target.value, index)}
                     />
                     <button onClick={() => handleSearch(index)}>Search</button>
+                    <ul>
+                      {foundSongs ? foundSongs.forEach((s, i) => {
+                        <li><DisplaySong song={s} onClick={() => setBattling(s[i])}></DisplaySong></li>
+                      }) : <></>}
+                    </ul>
                     <ul>
                       {votes[index].battleSongs.map((battleSong) => (
                         <li key={battleSong.song}>
