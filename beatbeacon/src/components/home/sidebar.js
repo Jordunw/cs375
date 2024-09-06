@@ -4,8 +4,6 @@ import * as Query from "../common/query";
 
 export default function Sidebar({ onPost }) {
   const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
-  const [followedArtists, setFollowedArtists] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const [username, setUsername] = useState("");
   const [song, setSong] = useState(null);
@@ -89,18 +87,6 @@ export default function Sidebar({ onPost }) {
     setLoggedIn(false);
   };
 
-  const testAPIQuery = async () => {
-    setLoading(true);
-    const token = OAuth.getCurrentToken().access_token;
-    if (!token) return;
-    const res = await Query.followedArtists(token);
-    if (res && res.artists)
-      setFollowedArtists(
-        res.artists.items[Math.floor(Math.random() * 10)].name
-      );
-    setLoading(false);
-  };
-
   return (
     <div className="sidebar" style={{ width: "300px", paddingBottom: "20px" }}>
       {!loggedIn ? (
@@ -114,12 +100,6 @@ export default function Sidebar({ onPost }) {
             Log out
           </a>
           <div className="post-form" style={{ marginTop: "auto" }}>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
-            />
             <p>Currently listening to: </p>
             {song ? (
               <span>
@@ -130,6 +110,12 @@ export default function Sidebar({ onPost }) {
             ) : (
               <p>Nothing :/</p>
             )}
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter username"
+            />
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
