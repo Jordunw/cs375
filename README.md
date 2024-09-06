@@ -6,9 +6,20 @@ allows users to explore what others are listening to in real-time, connect with 
 engage with music-based points of interest.
 
 To run app locally:
+
 clone this repo
 ```
 cd beatbeacon
+```
+add your local postgres user information to .env in the format:
+```
+PGUSER=postgres
+PGPORT=5432
+PGHOST=localhost
+PGPASSWORD=CS375
+PGDATABASE=beatbeacon
+```
+```
 npm i
 npm run setup:dev
 npm run build
