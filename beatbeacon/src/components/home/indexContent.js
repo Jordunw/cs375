@@ -14,6 +14,7 @@ function MainPageContent() {
   const mapRef = useRef(null);
   const [location, setLocation] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -61,28 +62,42 @@ function MainPageContent() {
   }, []);
 
   const addMarkerToMap = (post) => {
+    console.log("Function called with post:", post);
+  
+    if (!post || !post.location || !mapRef.current) {
+      console.log("Missing required data: post, location, or mapRef.");
+      return;
+    }
+  
+    const { latitude, longitude } = post.location;
+    console.log("Coordinates:", { latitude, longitude });
+  
     const customIcon = L.icon({
       iconUrl: "icon.png",
       iconSize: [64, 64],
       iconAnchor: [32, 64],
       popupAnchor: [0, -64],
     });
-
-    const marker = L.marker([post.location.latitude, post.location.longitude], {
-      icon: customIcon,
-    }).addTo(mapRef.current);
-
+  
+    if (!mapRef.current) {
+      console.log("Map reference is not defined.");
+      return;
+    }
+  
+    L.marker([latitude, longitude], { icon: customIcon }).addTo(mapRef.current);
+  
     const textIcon = L.divIcon({
       className: "text-label",
       html: `<div class="text-background"><strong>${post.username}</strong><br>${post.song}<br>${post.description}</div>`,
       iconSize: [150, 64],
       iconAnchor: [0, 0],
     });
-
-    const textCoordinates = [post.location.latitude, post.location.longitude];
-
+  
+    const textCoordinates = [latitude, longitude];
+  
     L.marker(textCoordinates, { icon: textIcon }).addTo(mapRef.current);
   };
+  
 
   const DisplaySong = ({ song, onSelect }) => {
     if (!song) return <div />;
@@ -358,25 +373,98 @@ function MainPageContent() {
         });
     };*/
 
+  // const handlePost = async (post) => {
+  //   if (socket && socket.readyState === WebSocket.OPEN && location) {
+  //     const locationDetails = await fetchLocationDetails(
+  //       location.latitude,
+  //       location.longitude
+  //     );
+  //     const postData = {
+  //       ...post,
+  //       location,
+  //       city: locationDetails.city,
+  //       state: locationDetails.state,
+  //       country: locationDetails.country,
+  //     };
+  //     socket.send(JSON.stringify(postData));
+  //     addMarkerToMap(postData);
+  //   } else {
+  //     console.error("WebSocket is not open or location is not available");
+  //   }
+  // };
+
   const handlePost = async (post) => {
-    if (socket && socket.readyState === WebSocket.OPEN && location) {
-      const locationDetails = await fetchLocationDetails(
-        location.latitude,
-        location.longitude
-      );
-      const postData = {
-        ...post,
-        location,
-        city: locationDetails.city,
-        state: locationDetails.state,
-        country: locationDetails.country,
-      };
-      socket.send(JSON.stringify(postData));
-      addMarkerToMap(postData);
-    } else {
-      console.error("WebSocket is not open or location is not available");
+    if (post.location) {
+        const locationDetails = await fetchLocationDetails(post.location.latitude, post.location.longitude);
+        post.city = locationDetails.city;
+        post.state = locationDetails.state;
+        post.country = locationDetails.country;
+
+        const postData = {
+          ...post,
+          location,
+          city: locationDetails.city,
+          state: locationDetails.state,
+          country: locationDetails.country,
+        };
+        
+        addMarkerToMap(postData);
+    }
+
+    // if (socket && socket.readyState === WebSocket.OPEN) {
+    //     socket.send(JSON.stringify({
+    //         ...post,
+    //         displayName: displayName || "Anonymous User" // Use input display name or default to "Anonymous User"
+    //     }));
+    // } else {
+    //     console.error('WebSocket is not open');
+    // }
+  };
+
+  const fetchPosts = async () => {
+    try {
+        const response = await fetch('/api/posts');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Here is the data",data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching posts:', error);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const markerObjects = await fetchPosts();
+        
+        for (const markerObject of markerObjects) {
+          const song = markerObject.body.song;
+          const description = markerObject.body.description;
+          const displayName = markerObject.display_name;
+          const location = markerObject.location;
+  
+          const markerData = {
+            username: displayName,
+            song: song,
+            description: description,
+            location: {
+              longitude: location.x,
+              latitude: location.y,
+            },
+          };
+          
+          addMarkerToMap(markerData);
+        }
+      } catch (error) {
+        console.error('Error fetching marker data:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);  
 
   const getLocation = () => {
     if (navigator.geolocation) {
@@ -409,10 +497,14 @@ function MainPageContent() {
     //addBeaconToMap("CCI", ["party rockers", "another song idk"], [39.95674100167317, -75.19514687333297]);
   }, []);
 
+  const handleUsernameChange = (username) => {
+      setDisplayName(username);
+  };
+
   return (
     <>
       <NavBar />
-      <Sidebar onPost={handlePost} />
+      <Sidebar onPost={handlePost} onUsernameChange={handleUsernameChange} />
       <div id="map"></div>
       <AddBeaconToMap
         title={"CCI"}
