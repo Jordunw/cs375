@@ -15,10 +15,10 @@ export async function searchSpotifySong(token, song) {
     let songArr = [];
     let results = await Query.searchSongByTitle(token, song, 3);
 
-    if(!results || !results.items)
+    if(!results || !results.tracks.items)
         return undefined;
 
-    results.items.forEach((item) => {
+    results.tracks.items.forEach((item) => {
         songArr.push({
             id: item.id,
             song: item.name,
