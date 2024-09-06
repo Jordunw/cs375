@@ -4,8 +4,6 @@ import * as Query from "../common/query";
 
 export default function Sidebar({ onPost, onUsernameChange }) {  // Add onUsernameChange prop
   const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
-  const [followedArtists, setFollowedArtists] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const [username, setUsername] = useState("");
   const [song, setSong] = useState(null);
@@ -104,7 +102,7 @@ export default function Sidebar({ onPost, onUsernameChange }) {  // Add onUserna
   const handleUsernameChange = (e) => {
     const newUsername = e.target.value;
     setUsername(newUsername);
-    onUsernameChange(newUsername);  // Pass the username to the parent component
+    onUsernameChange(newUsername);
   };
 
   return (
@@ -120,12 +118,6 @@ export default function Sidebar({ onPost, onUsernameChange }) {  // Add onUserna
             Log out
           </a>
           <div className="post-form" style={{ marginTop: "auto" }}>
-            <input
-              type="text"
-              value={username}
-              onChange={handleUsernameChange}  // Use the new handler
-              placeholder="Enter username"
-            />
             <p>Currently listening to: </p>
             {song ? (
               <span>
@@ -136,6 +128,12 @@ export default function Sidebar({ onPost, onUsernameChange }) {  // Add onUserna
             ) : (
               <p>Nothing :/</p>
             )}
+            <input
+              type="text"
+              value={username}
+              onChange={handleUsernameChange}  // Use the new handler
+              placeholder="Enter username"
+            />
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
