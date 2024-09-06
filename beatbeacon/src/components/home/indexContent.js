@@ -121,34 +121,34 @@ function MainPageContent() {
   };
 
   const AddBeaconToMap = ({ title, songs, location, map }) => {
-    useEffect(() => {
-      if (mapRef.current) {
-        const latitude = location[0];
-        const longitude = location[1];
+    // useEffect(() => {
+    //   if (mapRef.current) {
+    //     const latitude = location[0];
+    //     const longitude = location[1];
 
-        const customIcon = L.icon({
-          iconUrl: "icon2.png",
-          iconSize: [64, 64],
-          iconAnchor: [32, 64],
-          popupAnchor: [0, -64],
-        });
+    //     const customIcon = L.icon({
+    //       iconUrl: "icon2.png",
+    //       iconSize: [64, 64],
+    //       iconAnchor: [32, 64],
+    //       popupAnchor: [0, -64],
+    //     });
 
-        const marker = L.marker([latitude, longitude], {
-          icon: customIcon,
-        }).addTo(mapRef.current);
+    //     const marker = L.marker([latitude, longitude], {
+    //       icon: customIcon,
+    //     }).addTo(mapRef.current);
 
-        const popupContent = document.createElement("div");
+    //     const popupContent = document.createElement("div");
 
-        // Render React component into the container
-        ReactDOM.render(<PopupContent songs={songs} />, popupContent);
+    //     // Render React component into the container
+    //     ReactDOM.render(<PopupContent songs={songs} />, popupContent);
 
-        marker.bindPopup(popupContent);
+    //     marker.bindPopup(popupContent);
 
-        marker.on("click", () => {
-          marker.openPopup();
-        });
-      }
-    }, [map, location, title, songs]);
+    //     marker.on("click", () => {
+    //       marker.openPopup();
+    //     });
+    //   }
+    // }, [map, location, title, songs]);
 
     return null;
   };
