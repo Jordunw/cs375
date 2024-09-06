@@ -151,9 +151,49 @@ function MainPageContent() {
         song2Votes: 0,
         isBattled: false,
         song2: null,
+        battleSongs: []
       }))
     );
-
+    const [inputValues, setInputValues] = useState(Array(songs.length).fill(""));
+  
+    const handleInputChange = (value, index) => {
+      const newInputValues = [...inputValues];
+      newInputValues[index] = value;
+      setInputValues(newInputValues);
+    };
+  
+    const handleSearch = async (index) => {
+      const results = await searchSpotifySong(inputValues[index]);
+      setVotes((votes) => votes.map((vote, i) => {
+        if (i === index) vote.battleSongs = results;
+        return vote;
+      }));
+    };
+  
+    const handleSelectSong = (index, song) => {
+      setVotes((votes) =>
+        votes.map((vote, i) => {
+          if (i === index) {
+            vote.song2 = song.song;
+            vote.isBattled = true;
+          }
+          return vote;
+        })
+      );
+    };
+  
+    const handleVote = (index, isSong1) => {
+      setVotes((votes) =>
+        votes.map((vote, i) => {
+          if (i === index) {
+            if (isSong1) vote.song1Votes++;
+            else vote.song2Votes++;
+          }
+          return vote;
+        })
+      );
+    };
+  
     return (
       <div style={{ maxHeight: "200px", overflowY: "auto", width: "300px" }}>
         <ul style={{ padding: "0", margin: "10px 0" }}>
@@ -176,7 +216,7 @@ function MainPageContent() {
                 }}
               >
                 <span>{song}</span>
-
+  
                 {votes[index].isBattled ? (
                   <>
                     <span>{votes[index].song2}</span>
@@ -188,7 +228,25 @@ function MainPageContent() {
                     </button>
                   </>
                 ) : (
-                  <button onClick={() => handleBattle(index)}>Battle</button>
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Enter a song to battle..."
+                      value={inputValues[index]}
+                      onChange={(e) => handleInputChange(e.target.value, index)}
+                    />
+                    <button onClick={() => handleSearch(index)}>Search</button>
+                    <ul>
+                      {votes[index].battleSongs.map((battleSong) => (
+                        <li key={battleSong.song}>
+                          {battleSong.song} by {battleSong.artist}
+                          <button onClick={() => handleSelectSong(index, battleSong)}>
+                            Select
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 )}
               </div>
             </li>
