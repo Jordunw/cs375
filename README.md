@@ -6,13 +6,15 @@ allows users to explore what others are listening to in real-time, connect with 
 engage with music-based points of interest.
 
 To run app locally:
-clone rep
+clone this repo
+```
 cd beatbeacon
 npm i
 npm run setup:dev
 npm run build
 node WSServer.js
+```
 
-or visit fly at:
+or visit production build at:
 https://beatbeacon.fly.dev/
 
