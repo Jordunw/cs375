@@ -94,46 +94,119 @@ export default function Sidebar({ onPost, onUsernameChange }) {  // Add onUserna
   };
 
   return (
-    <div className="sidebar" style={{ width: "300px", paddingBottom: "20px" }}>
-      {!loggedIn ? (
-        <a className="login-button" onClick={handleLoginClick}>
-          Login with Spotify
-        </a>
-      ) : (
-        <>
-          <p>User is logged in</p>
-          <a className="login-button" onClick={handleLogoutClick}>
-            Log out
-          </a>
-          <div className="post-form" style={{ marginTop: "auto" }}>
-            <p>Currently listening to: </p>
-            {song ? (
-              <span>
-                <p>
-                  <i>{song.song}</i>  by  <b>{song.artist}</b>
-                </p>
-              </span>
-            ) : (
-              <p>Nothing :/</p>
-            )}
-            <input
-              type="text"
-              value={username}
-              onChange={handleUsernameChange}  // Use the new handler
-              placeholder="Enter username"
-            />
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter description (max 200 characters)"
-              maxLength={200}
-            />
-            <button onClick={handlePost}>Post</button>
-            <br></br>
-            <button onClick={handleRefreshSong}>Refresh song</button>
-          </div>
-        </>
-      )}
-    </div>
+    <div 
+  className="sidebar" 
+  style={{ 
+    width: "300px", 
+    paddingBottom: "20px", 
+    backgroundColor: "#ffebee", 
+    color: "#b71c1c", 
+    fontFamily: "Arial, sans-serif" 
+  }}
+>
+  {!loggedIn ? (
+    <a 
+      className="login-button" 
+      onClick={handleLoginClick} 
+      style={{ 
+        display: "inline-block", 
+        padding: "10px 20px", 
+        backgroundColor: "#d32f2f", 
+        color: "#ffffff", 
+        textDecoration: "none", 
+        borderRadius: "5px", 
+        cursor: "pointer" 
+      }}
+    >
+      Login with Spotify
+    </a>
+  ) : (
+    <>
+      <p style={{ marginBottom: "10px" }}>User is logged in</p>
+      <a 
+        className="login-button" 
+        onClick={handleLogoutClick} 
+        style={{ 
+          display: "inline-block", 
+          padding: "10px 20px", 
+          backgroundColor: "#d32f2f", 
+          color: "#ffffff", 
+          textDecoration: "none", 
+          borderRadius: "5px", 
+          cursor: "pointer" 
+        }}
+      >
+        Log out
+      </a>
+      <div className="post-form" style={{ marginTop: "auto" }}>
+        <p style={{ marginBottom: "5px" }}>Currently listening to: </p>
+        {song ? (
+          <span>
+            <p>
+              <i style={{ color: "#e57373" }}>{song.song}</i> by <b style={{ color: "#c62828" }}>{song.artist}</b>
+            </p>
+          </span>
+        ) : (
+          <p style={{ color: "#e57373" }}>Nothing :/</p>
+        )}
+        <input
+          type="text"
+          value={username}
+          onChange={handleUsernameChange}
+          placeholder="Enter username"
+          style={{ 
+            width: "100%", 
+            padding: "5px", 
+            marginBottom: "10px", 
+            border: "1px solid #ef9a9a", 
+            borderRadius: "3px" 
+          }}
+        />
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Enter description (max 200 characters)"
+          maxLength={200}
+          style={{ 
+            width: "100%", 
+            padding: "5px", 
+            marginBottom: "10px", 
+            border: "1px solid #ef9a9a", 
+            borderRadius: "3px" 
+          }}
+        />
+        <button 
+          onClick={handlePost} 
+          style={{ 
+            padding: "5px 10px", 
+            backgroundColor: "#c62828", 
+            color: "#ffffff", 
+            border: "none", 
+            borderRadius: "3px", 
+            cursor: "pointer", 
+            marginRight: "5px" 
+          }}
+        >
+          Post
+        </button>
+        <br />
+        <button 
+          onClick={handleRefreshSong} 
+          style={{ 
+            padding: "5px 10px", 
+            backgroundColor: "#c62828", 
+            color: "#ffffff", 
+            border: "none", 
+            borderRadius: "3px", 
+            cursor: "pointer", 
+            marginTop: "10px" 
+          }}
+        >
+          Refresh song
+        </button>
+      </div>
+    </>
+  )}
+</div>
   );
 }
