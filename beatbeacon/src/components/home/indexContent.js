@@ -88,32 +88,17 @@ function MainPageContent() {
     
         const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(mapRef.current);
     
-        const textIcon = L.divIcon({
-            className: 'text-label',
-            iconSize: [150, 64],
-            iconAnchor: [0, 0],
-        });
-    
-        const textCoordinates = [latitude, longitude];
-        const textMarker = L.marker(textCoordinates, { icon: textIcon }).addTo(mapRef.current);
-    
         const createPopupContent = () => {
             const container = document.createElement('div');
             container.style.maxHeight = '200px';
             container.style.overflowY = 'auto';
-            container.style.width = '150px';
-    
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = 'Add a song...';
-            input.style.width = '100%';
-            container.appendChild(input);
+            container.style.width = '300px';
     
             const list = document.createElement('ul');
             list.style.padding = '0';
             list.style.margin = '10px 0';
     
-            const votes = songs.map(() => 0);
+            const votes = songs.map(() => ({ song1Votes: 0, song2Votes: 0, isBattled: false, song2: null }));
     
             const updateList = () => {
                 list.innerHTML = '';
@@ -122,60 +107,98 @@ function MainPageContent() {
                     listItem.style.listStyle = 'none';
                     listItem.style.display = 'flex';
                     listItem.style.alignItems = 'center';
+                    listItem.style.flexDirection = 'column';
+    
+                    const songContainer = document.createElement('div');
+                    songContainer.style.display = 'flex';
+                    songContainer.style.alignItems = 'center';
+                    songContainer.style.justifyContent = 'space-between';
+                    songContainer.style.width = '100%';
     
                     const songText = document.createElement('span');
                     songText.textContent = song;
-                    listItem.appendChild(songText);
+                    songContainer.appendChild(songText);
     
-                    const upvoteButton = document.createElement('button');
-                    upvoteButton.textContent = '⬆️';
-                    upvoteButton.style.marginLeft = '5px';
-                    upvoteButton.addEventListener('click', (e) => {
-                        e.stopPropagation();  // Prevent popup from closing
-                        votes[index]++;
-                        updateList();
-                    });
-                    listItem.appendChild(upvoteButton);
+                    // If there's no battle yet, show the battle button
+                    if (!votes[index].isBattled) {
+                        const battleButton = document.createElement('button');
+                        battleButton.textContent = 'Battle';
+                        battleButton.style.marginLeft = '5px';
+                        battleButton.addEventListener('click', () => {
+                            showBattleInput(index);
+                        });
+                        songContainer.appendChild(battleButton);
+                    } else {
+                        // If a battle has started, show both songs with upvote buttons
+                        const song2Text = document.createElement('span');
+                        song2Text.textContent = votes[index].song2;
+                        songContainer.appendChild(song2Text);
     
-                    const downvoteButton = document.createElement('button');
-                    downvoteButton.textContent = '⬇️';
-                    downvoteButton.style.marginLeft = '5px';
-                    downvoteButton.addEventListener('click', (e) => {
-                        e.stopPropagation();  // Prevent popup from closing
-                        votes[index]--;
-                        updateList();
-                    });
-                    listItem.appendChild(downvoteButton);
+                        const upvoteSong1Button = document.createElement('button');
+                        upvoteSong1Button.textContent = `⬆️ ${votes[index].song1Votes}`;
+                        upvoteSong1Button.style.marginLeft = '5px';
+                        upvoteSong1Button.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            votes[index].song1Votes++;
+                            updateList();
+                        });
+                        songContainer.appendChild(upvoteSong1Button);
     
-                    const voteCount = document.createElement('span');
-                    voteCount.textContent = ` (${votes[index]})`;
-                    voteCount.style.marginLeft = '5px';
-                    listItem.appendChild(voteCount);
+                        const upvoteSong2Button = document.createElement('button');
+                        upvoteSong2Button.textContent = `⬆️ ${votes[index].song2Votes}`;
+                        upvoteSong2Button.style.marginLeft = '5px';
+                        upvoteSong2Button.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            votes[index].song2Votes++;
+                            updateList();
+                        });
+                        songContainer.appendChild(upvoteSong2Button);
+                    }
     
+                    listItem.appendChild(songContainer);
                     list.appendChild(listItem);
                 });
             };
     
+            // Function to show battle input
+            const showBattleInput = (songIndex) => {
+                const inputContainer = document.createElement('div');
+                inputContainer.style.display = 'flex';
+                inputContainer.style.marginTop = '5px';
+    
+                const battleInput = document.createElement('input');
+                battleInput.type = 'text';
+                battleInput.placeholder = 'Add a song to battle...';
+                battleInput.style.flex = '1';
+    
+                const submitButton = document.createElement('button');
+                submitButton.textContent = 'Submit';
+                submitButton.style.marginLeft = '5px';
+                submitButton.addEventListener('click', () => {
+                    if (battleInput.value.trim() !== '') {
+                        votes[songIndex].song2 = battleInput.value.trim();
+                        votes[songIndex].isBattled = true;
+                        updateList();
+                    }
+                });
+    
+                inputContainer.appendChild(battleInput);
+                inputContainer.appendChild(submitButton);
+    
+                // Add input box below the battled song
+                list.children[songIndex].appendChild(inputContainer);
+            };
+    
+            // Initial list update
             updateList();
+    
             container.appendChild(list);
-    
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && input.value.trim() !== '') {
-                    songs.unshift(input.value.trim());
-                    votes.unshift(0);
-                    updateList();
-                    input.value = '';
-                }
-            });
-    
             return container;
         };
     
-        // Bind the popup to the marker and configure it to reopen every time it is clicked
         const popupContent = createPopupContent();
         marker.bindPopup(popupContent);
     
-        // Ensure the popup opens every time it's clicked
         marker.on('click', () => {
             marker.openPopup();
         });
