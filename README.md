@@ -11,12 +11,12 @@ clone this repo
 ```
 cd beatbeacon
 ```
-add your local postgres user information to .env in the format:
+add your local postgres username and password to .env alogn with the rest of the info:
 ```
-PGUSER=postgres
+PGUSER=[postgres username]
 PGPORT=5432
 PGHOST=localhost
-PGPASSWORD=CS375
+PGPASSWORD=[postgres password]
 PGDATABASE=beatbeacon
 ```
 ```
