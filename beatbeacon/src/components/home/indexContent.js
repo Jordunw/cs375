@@ -15,6 +15,8 @@ function MainPageContent() {
   const [location, setLocation] = useState(null);
   const [socket, setSocket] = useState(null);
   const [displayName, setDisplayName] = useState("");
+  const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
+  const [token, setToken] = useState(OAuth.getCurrentToken());
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -52,6 +54,9 @@ function MainPageContent() {
       console.log("Disconnected from WebSocket server");
     };
 
+    setLoggedIn(OAuth.loggedIn());
+    setToken(OAuth.getCurrentToken());
+
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -59,7 +64,7 @@ function MainPageContent() {
       }
       newSocket.close();
     };
-  }, []);
+  }, [OAuth.loggedIn()]);
 
   const addMarkerToMap = (post) => {
     console.log("Function called with post:", post);
@@ -101,6 +106,7 @@ function MainPageContent() {
 
   const DisplaySong = ({ song, onSelect }) => {
     if (!song) return <div />;
+    console.log(song);
     return (
       <span>
         <p>
@@ -151,10 +157,10 @@ function MainPageContent() {
         song2Votes: 0,
         isBattled: false,
         song2: null,
-        battleSongs: []
       }))
     );
     const [inputValues, setInputValues] = useState(Array(songs.length).fill(""));
+    const [foundSongs, setFoundSongs] = useState(null);
   
     const handleInputChange = (value, index) => {
       const newInputValues = [...inputValues];
@@ -163,11 +169,9 @@ function MainPageContent() {
     };
   
     const handleSearch = async (index) => {
-      const results = await searchSpotifySong(inputValues[index]);
-      setVotes((votes) => votes.map((vote, i) => {
-        if (i === index) vote.battleSongs = results;
-        return vote;
-      }));
+      if(!token || !loggedIn) return null;
+      const results = await searchSpotifySong(token, inputValues[index]);
+      setFoundSongs(results);
     };
   
     const handleSelectSong = (index, song) => {
@@ -180,6 +184,7 @@ function MainPageContent() {
           return vote;
         })
       );
+      setFoundSongs(null);
     };
   
     const handleVote = (index, isSong1) => {
@@ -202,50 +207,53 @@ function MainPageContent() {
               key={index}
               style={{
                 listStyle: "none",
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "column",
+                padding: "10px",
+                marginBottom: "10px"
               }}
             >
               <div
                 style={{
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
+                  width: "100%"
                 }}
               >
                 <span>{song}</span>
-  
                 {votes[index].isBattled ? (
                   <>
-                    <span>{votes[index].song2}</span>
+                    <div>
                     <button onClick={() => handleVote(index, true)}>
-                      ↑ {votes[index].song1Votes}
-                    </button>
-                    <button onClick={() => handleVote(index, false)}>
-                      ↑ {votes[index].song2Votes}
-                    </button>
+                        ↑ {votes[index].song1Votes}
+                      </button>
+                    </div>
+                    <span>{votes[index].song2}</span>
+                    <div>
+                      <button onClick={() => handleVote(index, false)}>
+                        ↑ {votes[index].song2Votes}
+                      </button>
+                    </div>
                   </>
                 ) : (
                   <>
-                    <input
-                      type="text"
-                      placeholder="Enter a song to battle..."
-                      value={inputValues[index]}
-                      onChange={(e) => handleInputChange(e.target.value, index)}
-                    />
-                    <button onClick={() => handleSearch(index)}>Search</button>
-                    <ul>
-                      {votes[index].battleSongs.map((battleSong) => (
-                        <li key={battleSong.song}>
-                          {battleSong.song} by {battleSong.artist}
-                          <button onClick={() => handleSelectSong(index, battleSong)}>
-                            Select
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                    <div style={{ margin: "10px 0" }}>
+                      <input
+                        type="text"
+                        placeholder="Enter a song to battle..."
+                        value={inputValues[index]}
+                        onChange={(e) => handleInputChange(e.target.value, index)}
+                      />
+                      <button onClick={() => handleSearch(index)}>Search</button>
+                    </div>
+                    {foundSongs && (
+                      <ul style={{ width: "100%", padding: "0" }}>
+                        {foundSongs.map((foundSong, idx) => (
+                          <li key={idx} style={{ listStyle: "none", padding: "5px 0" }}>
+                            <DisplaySong song={foundSong} onSelect={() => handleSelectSong(idx, foundSong)} />
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </>
                 )}
               </div>
