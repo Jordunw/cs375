@@ -49,16 +49,16 @@ CHECK (array_length(vote_counts, 1) = array_length(song_ids, 1));
 -- Insert test data into the songs table
 INSERT INTO songs (spotify_link, added_by_username, music_name)
 VALUES
-    ('https://open.spotify.com/track/1', 'user1', 'Song One'),
-    ('https://open.spotify.com/track/2', 'user2', 'Song Two'),
-    ('https://open.spotify.com/track/3', 'user3', 'Song Three'),
-    ('https://open.spotify.com/track/4', 'user1', 'Song Four'),
-    ('https://open.spotify.com/track/5', 'user2', 'Song Five'),
-    ('https://open.spotify.com/track/6', 'user3', 'Song Six'),
-    ('https://open.spotify.com/track/7', 'user1', 'Song Seven'),
-    ('https://open.spotify.com/track/8', 'user2', 'Song Eight'),
-    ('https://open.spotify.com/track/9', 'user3', 'Song Nine'),
-    ('https://open.spotify.com/track/10', 'user1', 'Song Ten');
+    ('https://open.spotify.com/track/1', 'Forest', 'JUGGERNAUT by Tyler, The Creator'),
+    ('https://open.spotify.com/track/2', 'Danny', 'Expect by Windows 96'),
+    ('https://open.spotify.com/track/3', 'Chris', 'Cruising by Black Midi'),
+    ('https://open.spotify.com/track/4', 'Forest', 'Gabrielle by Ween'),
+    ('https://open.spotify.com/track/5', 'Danny', 'Stairway to Heaven by Led Zeppelin'),
+    ('https://open.spotify.com/track/6', 'Chris', 'Have a Cigar by Pink Floyd'),
+    ('https://open.spotify.com/track/7', 'Forest', 'IFHY by Tyler, The Creator'),
+    ('https://open.spotify.com/track/8', 'Danny', 'JUGGERNAUT by Tyler, The Creator'),
+    ('https://open.spotify.com/track/9', 'Chris', 'Clint Eastwood by Gorillaz'),
+    ('https://open.spotify.com/track/10', 'Forest', 'Help! by The Beatles');
 
 -- Insert test data into the beacons table with locations on Drexel Campus and varied vote counts
 WITH song_ids AS (
