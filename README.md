@@ -5,13 +5,13 @@ create a unique, interactive, and social experience for music enthusiasts. By us
 allows users to explore what others are listening to in real-time, connect with nearby friends, and 
 engage with music-based points of interest.
 
-To run app locally:
+#To run app locally:
 
 clone this repo
 ```
 cd beatbeacon
 ```
-add your local postgres username and password to .env alogn with the rest of the info:
+add your postgres username and password to .env along with the rest of the info:
 ```
 PGUSER=[postgres username]
 PGPORT=5432
@@ -26,6 +26,6 @@ npm run build
 node WSServer.js
 ```
 
-or visit production build at:
+#or visit production build at:
 https://beatbeacon.fly.dev/
 
