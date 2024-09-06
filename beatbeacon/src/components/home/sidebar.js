@@ -71,6 +71,7 @@ export default function Sidebar({ onPost }) {
       const update = async () => await updateCurrentlyListeningTrack();
       update();
     } else {
+      console.log(location);
       if (!song) console.error("You need to be listening to a song!");
       else console.error("All fields must be filled");
       return;
