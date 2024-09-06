@@ -9,6 +9,8 @@ import { searchSpotifySong } from "../common/songQuery";
 import OAuth from "./oauth";
 
 import NavBar from "../common/Navbar";
+import AddBeaconsToMap from "./AddBeaconsToMap";
+
 
 function MainPageContent() {
   const mapRef = useRef(null);
@@ -17,6 +19,8 @@ function MainPageContent() {
   const [displayName, setDisplayName] = useState("");
   const [loggedIn, setLoggedIn] = useState(OAuth.loggedIn());
   const [token, setToken] = useState(OAuth.getCurrentToken());
+
+  const [beacons, setBeacons] = useState([]);
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -357,14 +361,14 @@ function MainPageContent() {
         addMarkerToMap(postData);
     }
 
-    // if (socket && socket.readyState === WebSocket.OPEN) {
-    //     socket.send(JSON.stringify({
-    //         ...post,
-    //         displayName: displayName || "Anonymous User" // Use input display name or default to "Anonymous User"
-    //     }));
-    // } else {
-    //     console.error('WebSocket is not open');
-    // }
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            ...post,
+            displayName: displayName || "Anonymous User" // Use input display name or default to "Anonymous User"
+        }));
+    } else {
+        console.error('WebSocket is not open');
+    }
   };
 
   const fetchPosts = async () => {
@@ -381,8 +385,25 @@ function MainPageContent() {
     }
   };
 
+  const fetchBeacons = async () => {
+    try {
+        const response = await fetch('/api/beacons');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Here is the data",data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
+      const beaconData = await fetchBeacons();
+      setBeacons(beaconData);
+
       try {
         const markerObjects = await fetchPosts();
         
@@ -458,6 +479,7 @@ function MainPageContent() {
         location={[39.95674100167317, -75.19514687333297]}
         map={mapRef}
       />
+      {mapRef.current && <AddBeaconsToMap beacons={beacons} map={mapRef.current} />}
     </>
   );
 }

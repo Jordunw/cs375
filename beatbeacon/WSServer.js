@@ -64,6 +64,135 @@ app.get('/api/posts', async (req, res, next) => {
     }
 });
 
+app.get('/api/beacons', async (req, res, next) => {
+    try {
+        const query = `
+            SELECT 
+                *
+            FROM beacons
+            ORDER BY id;
+        `;
+
+        const result = await pool.query(query);
+
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.get('/api/songs/:id', async (req, res, next) => {
+    try {
+        const songId = req.params.id;
+
+        const query = `
+            SELECT 
+                id,
+                spotify_link,
+                added_by_username,
+                music_name
+            FROM songs
+            WHERE id = $1;
+        `;
+
+        const result = await pool.query(query, [songId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Song not found' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.post('/api/vote/increase', async (req, res, next) => {
+    try {
+        const { beaconId, songId } = req.body;
+
+        // First, get the current beacon data
+        const getBeaconQuery = `
+            SELECT song_ids, vote_counts
+            FROM beacons
+            WHERE id = $1;
+        `;
+        const beaconResult = await pool.query(getBeaconQuery, [beaconId]);
+
+        if (beaconResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Beacon not found' });
+        }
+
+        const { song_ids, vote_counts } = beaconResult.rows[0];
+        const songIndex = song_ids.indexOf(songId);
+
+        if (songIndex === -1) {
+            return res.status(404).json({ error: 'Song not found in this beacon' });
+        }
+
+        // Increase the vote count
+        const newVoteCounts = [...vote_counts];
+        newVoteCounts[songIndex] = (newVoteCounts[songIndex] || 0) + 1;
+
+        // Update the beacon with the new vote count
+        const updateQuery = `
+            UPDATE beacons
+            SET vote_counts = $1
+            WHERE id = $2
+            RETURNING *;
+        `;
+        const updateResult = await pool.query(updateQuery, [newVoteCounts, beaconId]);
+
+        res.json(updateResult.rows[0]);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// New endpoint to decrease vote
+app.post('/api/vote/decrease', async (req, res, next) => {
+    try {
+        const { beaconId, songId } = req.body;
+
+        // First, get the current beacon data
+        const getBeaconQuery = `
+            SELECT song_ids, vote_counts
+            FROM beacons
+            WHERE id = $1;
+        `;
+        const beaconResult = await pool.query(getBeaconQuery, [beaconId]);
+
+        if (beaconResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Beacon not found' });
+        }
+
+        const { song_ids, vote_counts } = beaconResult.rows[0];
+        const songIndex = song_ids.indexOf(songId);
+
+        if (songIndex === -1) {
+            return res.status(404).json({ error: 'Song not found in this beacon' });
+        }
+
+        // Decrease the vote count, but ensure it doesn't go below 0
+        const newVoteCounts = [...vote_counts];
+        newVoteCounts[songIndex] = Math.max((newVoteCounts[songIndex] || 0) - 1, 0);
+
+        // Update the beacon with the new vote count
+        const updateQuery = `
+            UPDATE beacons
+            SET vote_counts = $1
+            WHERE id = $2
+            RETURNING *;
+        `;
+        const updateResult = await pool.query(updateQuery, [newVoteCounts, beaconId]);
+
+        res.json(updateResult.rows[0]);
+    } catch (error) {
+        next(error);
+    }
+});
+
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "build")));
 
