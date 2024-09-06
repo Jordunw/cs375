@@ -78,15 +78,44 @@ const Feed = () => {
             <div className="feed">
                 <h2>Live Feed:</h2>
                 {posts.map((post, index) => (
-                    <div key={index} className="post">
-                        <h4>{post.display_name}</h4>
-                        <p><strong>Song:</strong> {post.body.song}</p>
-                        <p><strong>Description:</strong> {post.body.description}</p>
-                        <p><strong>Location:</strong> {post.location ? `(${post.location.x}, ${post.location.y})` : 'No location available'}</p>
-                        <p><strong>Created at:</strong> {new Date(post.created_at).toLocaleString()}</p>
+                    <div key={index} className="post" style={{
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        padding: '20px',
+                        marginBottom: '20px'
+                    }}>
+                        <h4 style={{
+                            color: '#007bff',
+                            marginBottom: '10px',
+                            fontSize: '1.2em'
+                        }}>{post.display_name}</h4>
+                        <p style={{
+                            fontSize: '1.1em',
+                            fontWeight: 'bold',
+                            marginBottom: '10px'
+                        }}>🎵 {post.body.song}</p>
+                        <p style={{
+                            fontStyle: 'italic',
+                            color: '#6c757d',
+                            marginBottom: '15px'
+                        }}>{post.body.description}</p>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '0.9em',
+                            color: '#6c757d'
+                        }}>
+                            <span>{post.location ? `📍 (${post.location.x.toFixed(2)}, ${post.location.y.toFixed(2)})` : 'No location available'}</span>
+                            <span>{new Date(post.created_at).toLocaleString()}</span>
+                        </div>
                         {post.city || post.state || post.country ? (
-                            <p><strong>Address:</strong> 
-                                {[post.city, post.state, post.country].filter(Boolean).join(', ')}
+                            <p style={{
+                                marginTop: '10px',
+                                fontSize: '0.9em',
+                                color: '#6c757d'
+                            }}>
+                                🏙️ {[post.city, post.state, post.country].filter(Boolean).join(', ')}
                             </p>
                         ) : null}
                     </div>
