@@ -4,9 +4,11 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "../../styles/index.css";
 import Sidebar from "./sidebar";
-import { fetchLocationDetails } from "./geocodingUtils"; // Import the utility
+import { fetchLocationDetails } from './geocodingUtils'; // Import the utility
 import { searchSpotifySong } from "../common/songQuery";
 import OAuth from "./oauth";
+
+import NavBar from "../common/Navbar";
 
 function MainPageContent() {
   const mapRef = useRef(null);
@@ -293,16 +295,8 @@ function MainPageContent() {
 
   return (
     <>
-      <div className="header">
-        <a className="nav-button" href="/">
-          Map
-        </a>
-        BeatBeacon
-        <a className="nav-button" href="/feed">
-          Feed
-        </a>
-      </div>
-      <Sidebar onPost={handlePost} onUsernameChange={setUsername} />
+      <NavBar />
+      <Sidebar onPost={handlePost} onUsernameChange={setUsername}/>
       <div id="map"></div>
       <AddBeaconToMap
         title={"CCI"}

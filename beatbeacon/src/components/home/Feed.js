@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./sidebar"; // Import the Sidebar component
 import { fetchLocationDetails } from './geocodingUtils'; // Import the utility
+import NavBar from "../common/Navbar";
 
 const Feed = () => {
     const [posts, setPosts] = useState([]);
@@ -72,11 +73,7 @@ const Feed = () => {
 
     return (
         <>
-            <div className="header">
-                <a className="nav-button" href="/">Map</a>
-                BeatBeacon
-                <a className="nav-button" href="/feed">Feed</a>
-            </div>
+            <NavBar />
             <Sidebar onPost={handlePost} onUsernameChange={handleUsernameChange} /> {/* Sidebar for posting */}
             <div className="feed">
                 <h2>Live Feed:</h2>
