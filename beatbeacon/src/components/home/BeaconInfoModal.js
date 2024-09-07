@@ -70,6 +70,8 @@ const BeaconInfoModal = ({ isOpen, onClose, beacon, onVote, getVoteCount, getUse
     return userVote === songId ? 'Voted' : 'Vote';
   };
 
+  // Styling
+
   const overlayStyle = {
     position: 'fixed',
     top: 0,

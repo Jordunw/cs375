@@ -32,7 +32,7 @@ CREATE TABLE songs (
     music_name VARCHAR(255) NOT NULL
 );
 
--- Create the beacons table with vote_counts
+-- Create the beacons table
 CREATE TABLE beacons (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     location POINT NOT NULL,
@@ -46,7 +46,7 @@ ALTER TABLE beacons
 ADD CONSTRAINT check_vote_counts_length
 CHECK (array_length(vote_counts, 1) = array_length(song_ids, 1));
 
--- Insert test data into the songs table
+-- Insert test data
 INSERT INTO songs (spotify_link, added_by_username, music_name)
 VALUES
     ('https://open.spotify.com/track/1', 'user1', 'Song One'),
@@ -60,7 +60,6 @@ VALUES
     ('https://open.spotify.com/track/9', 'user3', 'Song Nine'),
     ('https://open.spotify.com/track/10', 'user1', 'Song Ten');
 
--- Insert test data into the beacons table with locations on Drexel Campus and varied vote counts
 WITH song_ids AS (
     SELECT id FROM songs ORDER BY music_name
 )

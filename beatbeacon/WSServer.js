@@ -50,20 +50,6 @@ app.use((err, req, res, next) => {
 });
 
 // API routes
-app.get('/api/posts', async (req, res, next) => {
-    try {
-        const query = `
-            SELECT p.*
-            FROM posts p
-            ORDER BY p.created_at DESC;
-        `;
-        const result = await pool.query(query);
-        res.json(result.rows);
-    } catch (error) {
-        next(error); // Pass errors to the error handling middleware
-    }
-});
-
 app.get('/api/beacons', async (req, res, next) => {
     try {
         const query = `
@@ -75,6 +61,20 @@ app.get('/api/beacons', async (req, res, next) => {
 
         const result = await pool.query(query);
 
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.get('/api/posts', async (req, res, next) => {
+    try {
+        const query = `
+            SELECT p.*
+            FROM posts p
+            ORDER BY p.created_at DESC;
+        `;
+        const result = await pool.query(query);
         res.json(result.rows);
     } catch (error) {
         next(error);
@@ -107,11 +107,10 @@ app.get('/api/songs/:id', async (req, res, next) => {
     }
 });
 
-app.post('/api/vote/increase', async (req, res, next) => {
+app.post('/api/vote/decrease', async (req, res, next) => {
     try {
         const { beaconId, songId } = req.body;
 
-        // First, get the current beacon data
         const getBeaconQuery = `
             SELECT song_ids, vote_counts
             FROM beacons
@@ -130,11 +129,9 @@ app.post('/api/vote/increase', async (req, res, next) => {
             return res.status(404).json({ error: 'Song not found in this beacon' });
         }
 
-        // Increase the vote count
         const newVoteCounts = [...vote_counts];
-        newVoteCounts[songIndex] = (newVoteCounts[songIndex] || 0) + 1;
+        newVoteCounts[songIndex] = Math.max((newVoteCounts[songIndex] || 0) - 1, 0);
 
-        // Update the beacon with the new vote count
         const updateQuery = `
             UPDATE beacons
             SET vote_counts = $1
@@ -149,12 +146,10 @@ app.post('/api/vote/increase', async (req, res, next) => {
     }
 });
 
-// New endpoint to decrease vote
-app.post('/api/vote/decrease', async (req, res, next) => {
+app.post('/api/vote/increase', async (req, res, next) => {
     try {
         const { beaconId, songId } = req.body;
 
-        // First, get the current beacon data
         const getBeaconQuery = `
             SELECT song_ids, vote_counts
             FROM beacons
@@ -173,11 +168,9 @@ app.post('/api/vote/decrease', async (req, res, next) => {
             return res.status(404).json({ error: 'Song not found in this beacon' });
         }
 
-        // Decrease the vote count, but ensure it doesn't go below 0
         const newVoteCounts = [...vote_counts];
-        newVoteCounts[songIndex] = Math.max((newVoteCounts[songIndex] || 0) - 1, 0);
+        newVoteCounts[songIndex] = (newVoteCounts[songIndex] || 0) + 1;
 
-        // Update the beacon with the new vote count
         const updateQuery = `
             UPDATE beacons
             SET vote_counts = $1

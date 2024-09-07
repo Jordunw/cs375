@@ -34,13 +34,44 @@ const AddBeaconsToMap = ({ beacons, map }) => {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${timeframe}`;
   };
 
+  const handleVote = async (beaconId, songId) => {
+    try {
+      const prevVote = userVotes[beaconId];
+      
+      if (prevVote && prevVote !== songId) {
+        await decreaseVote(beaconId, prevVote);
+      }
+      
+      const updatedBeacon = await increaseVote(beaconId, songId);
+      
+      setVoteState(prevState => ({
+        ...prevState,
+        [beaconId]: updatedBeacon.vote_counts.reduce((acc, count, index) => {
+          acc[updatedBeacon.song_ids[index]] = count;
+          return acc;
+        }, {})
+      }));
+
+      const newUserVotes = {
+        ...userVotes,
+        [beaconId]: songId
+      };
+      setUserVotes(newUserVotes);
+      saveUserVotesToStorage(newUserVotes);
+
+      console.log('Vote updated successfully. New vote state:', voteState);
+      console.log('New user votes:', newUserVotes);
+    } catch (error) {
+      console.error('Error handling vote:', error);
+    }
+  };
+
   const loadUserVotesFromStorage = useCallback(() => {
     const storedVotes = localStorage.getItem('userVotes');
     if (storedVotes) {
       const parsedVotes = JSON.parse(storedVotes);
       const currentTimeframe = getCurrentTimeframe();
       
-      // Filter out votes from previous timeframes
       const validVotes = Object.entries(parsedVotes).reduce((acc, [beaconId, vote]) => {
         if (vote.timeframe === currentTimeframe) {
           acc[beaconId] = vote.songId;
@@ -60,25 +91,6 @@ const AddBeaconsToMap = ({ beacons, map }) => {
     }, {});
     localStorage.setItem('userVotes', JSON.stringify(votesToStore));
   };
-
-  const resetVotes = useCallback(() => {
-    console.log("Resetting votes and fetching new beacon data");
-    setVoteState({});
-    setUserVotes({});
-    localStorage.removeItem('userVotes');
-    // Here you would typically re-fetch the beacon data from your API
-    // For now, we'll just reset to the initial state based on the current beacons prop
-    if (beacons && beacons.length > 0) {
-      const initialVoteState = {};
-      beacons.forEach(beacon => {
-        initialVoteState[beacon.id] = {};
-        beacon.song_ids.forEach((songId, index) => {
-          initialVoteState[beacon.id][songId] = beacon.vote_counts[index] || 0;
-        });
-      });
-      setVoteState(initialVoteState);
-    }
-  }, [beacons]);
 
   useEffect(() => {
     loadUserVotesFromStorage();
@@ -108,7 +120,6 @@ const AddBeaconsToMap = ({ beacons, map }) => {
               title: beacon_name,
             }).addTo(mapRef.current);
 
-            // Add click event to open modal
             marker.on('click', async () => {
               try {
                 const topSongs = await Promise.all(
@@ -153,7 +164,6 @@ const AddBeaconsToMap = ({ beacons, map }) => {
         }
       });
 
-      // Initialize vote state
       const initialVoteState = {};
       beacons.forEach(beacon => {
         initialVoteState[beacon.id] = {};
@@ -166,14 +176,12 @@ const AddBeaconsToMap = ({ beacons, map }) => {
       console.warn("Map reference or beacons array is not valid");
     }
 
-    // Set up timer for vote reset
     const now = new Date();
     const minutes = now.getMinutes();
     const secondsUntilNextHalfHour = ((30 - (minutes % 30)) * 60 - now.getSeconds()) * 1000;
 
     const timer = setTimeout(() => {
       resetVotes();
-      // Set up recurring timer every 30 minutes
       setInterval(resetVotes, 30 * 60 * 1000);
     }, secondsUntilNextHalfHour);
 
@@ -233,41 +241,23 @@ const AddBeaconsToMap = ({ beacons, map }) => {
     }
   };
 
-  const handleVote = async (beaconId, songId) => {
-    try {
-      const prevVote = userVotes[beaconId];
-      
-      if (prevVote && prevVote !== songId) {
-        // Decrease vote for the previous song
-        await decreaseVote(beaconId, prevVote);
-      }
-      
-      // Increase vote for the new song
-      const updatedBeacon = await increaseVote(beaconId, songId);
-      
-      // Update local state
-      setVoteState(prevState => ({
-        ...prevState,
-        [beaconId]: updatedBeacon.vote_counts.reduce((acc, count, index) => {
-          acc[updatedBeacon.song_ids[index]] = count;
-          return acc;
-        }, {})
-      }));
-
-      const newUserVotes = {
-        ...userVotes,
-        [beaconId]: songId
-      };
-      setUserVotes(newUserVotes);
-      saveUserVotesToStorage(newUserVotes);
-
-      console.log('Vote updated successfully. New vote state:', voteState);
-      console.log('New user votes:', newUserVotes);
-    } catch (error) {
-      console.error('Error handling vote:', error);
-      // You might want to show an error message to the user here
+  const resetVotes = useCallback(() => {
+    console.log("Resetting votes and fetching new beacon data");
+    setVoteState({});
+    setUserVotes({});
+    localStorage.removeItem('userVotes');
+    
+    if (beacons && beacons.length > 0) {
+      const initialVoteState = {};
+      beacons.forEach(beacon => {
+        initialVoteState[beacon.id] = {};
+        beacon.song_ids.forEach((songId, index) => {
+          initialVoteState[beacon.id][songId] = beacon.vote_counts[index] || 0;
+        });
+      });
+      setVoteState(initialVoteState);
     }
-  };
+  }, [beacons]);
 
   const getVoteCount = (beaconId, songId) => {
     return voteState[beaconId]?.[songId] || 0;
